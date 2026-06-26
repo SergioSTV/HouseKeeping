@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function role()     { return request.auth.token.role; }
+    function hotels()   { return request.auth.token.hotels; }
+    function isAdmin()  { return signedIn() && role() == 'admin'; }
+    function isStaff()  { return signedIn() && role() in ['admin','governanta','subgovernanta','recepcion']; }
+
+    // Perfil de usuario: cada uno el suyo; el admin todos.
+    match /users/{uid} {
+      allow read:  if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+      // Permite que el propio usuario guarde su token FCM y su flag de biometria.
+      allow update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['fcmTokens','biometricEnabled','mustChangePassword']);
+    }
+
+    match /hotels/{hid} {
+      // Esta esta en el claim del usuario? (admin entra a todos)
+      function inHotel() { return isAdmin() || (hotels() != null && hid in hotels()); }
+
+      // El documento del hotel (nombre, tema) lo lee cualquier usuario autenticado.
+      allow get, list: if signedIn();
+      allow write: if isAdmin();
+
+      match /rooms/{roomId} {
+        allow read: if signedIn() && inHotel();
+        allow create, delete: if isAdmin();
+
+        // Governanta/Subgovernanta: operativa completa de su hotel.
+        // Camarera: SOLO puede dejarla "lista para revisar", y solo en su hotel.
+        // Recepcion: SOLO toca los campos de checkout, y solo en su hotel.
+        allow update: if
+          ((role() in ['admin','governanta','subgovernanta']) && inHotel())
+          || (role() == 'camarera' && inHotel()
+              && request.resource.data.status in ['lista_revision', 'no_molestar']
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['status','updatedBy','updatedAt']))
+          || (role() == 'recepcion' && inHotel()
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['checkout','lateCheckoutDate','vip','updatedBy','updatedAt']));
+
+        // Historial (icono de 3 puntitos): lo leen y crean los que ven el rack.
+        match /history/{h} {
+          allow read:   if signedIn() && inHotel();
+          allow create: if signedIn() && inHotel();
+        }
+      }
+
+      // Averias: la camarera puede CREAR (reportar) pero NO leer la lista.
+      match /averias/{id} {
+        allow read:   if isStaff() && inHotel();
+        allow create: if signedIn() && inHotel();
+        allow update, delete: if isAdmin();
+      }
+
+      // Las que archiva la funcion nocturna: solo lectura para staff.
+      match /averias_archive/{id} {
+        allow read:  if isStaff() && inHotel();
+        allow write: if false;
+      }
+
+      // Comentarios especiales: invisibles para camareras.
+      match /comentarios/{id} {
+        allow read, write: if isStaff() && inHotel();
+      }
+
+      // Llegadas extras: las gestiona Recepcion (y admin).
+      match /llegadas_extras/{id} {
+        allow read:  if isStaff() && inHotel();
+        allow write: if (role() in ['admin','recepcion']) && inHotel();
+      }
+    }
+  }
+}

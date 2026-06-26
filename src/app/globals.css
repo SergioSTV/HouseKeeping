@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Valores por defecto; HotelProvider los sobreescribe segun el hotel activo. */
+  --hotel-primary: #1D5FA5;
+  --hotel-secondary: #E6F1FB;
+  --hotel-accent: #378ADD;
+}
+
+html, body { height: 100%; }
+body {
+  background: #f4f5f7;
+  color: #1f2430;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

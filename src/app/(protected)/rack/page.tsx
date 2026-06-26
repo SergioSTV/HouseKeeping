@@ -1,0 +1,65 @@
+'use client';
+import { useMemo, useState } from 'react';
+import { useHotel } from '@/providers/HotelProvider';
+import { useRooms } from '@/hooks/useRooms';
+import { RoomCard } from '@/components/RoomCard';
+import { STATUS_LABELS } from '@/lib/roles';
+import type { RoomStatus } from '@/lib/types';
+
+type Filtro = 'todas' | 'salidas' | 'averias' | 'no_salen' | 'late' | 'limpias' | 'sucias' | 'bloqueadas';
+
+export default function RackPage() {
+  const { hotelId, loading: loadingHotel } = useHotel();
+  const { rooms, loading } = useRooms(hotelId);
+  const [planta, setPlanta] = useState<number | 'todas'>('todas');
+  const [filtro, setFiltro] = useState<Filtro>('todas');
+
+  const plantas = useMemo(
+    () => Array.from(new Set(rooms.map((r) => r.floor))).sort((a, b) => a - b),
+    [rooms],
+  );
+
+  const visibles = rooms.filter((r) => {
+    if (planta !== 'todas' && r.floor !== planta) return false;
+    switch (filtro) {
+      case 'salidas': return r.checkout === 'ya_checkout' || r.checkout === 'checkout_anticipado';
+      case 'averias': return r.status === 'averia_grave';
+      case 'no_salen': return r.status === 'cliente_no_sale';
+      case 'late': return r.checkout === 'late_14' || r.checkout === 'late_18';
+      case 'limpias': return r.status === 'limpia';
+      case 'sucias': return r.status === 'sucia' || r.status === 'sucia_guardia';
+      case 'bloqueadas': return r.blocked || r.status === 'averia_grave';
+      default: return true;
+    }
+  });
+
+  if (loadingHotel || loading) return <p className="text-sm text-gray-500">Cargando rack…</p>;
+
+  return (
+    <div>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <select value={planta} onChange={(e) => setPlanta(e.target.value === 'todas' ? 'todas' : Number(e.target.value))}
+          className="rounded border border-gray-300 px-2 py-1.5 text-sm">
+          <option value="todas">Todas las plantas</option>
+          {plantas.map((p) => <option key={p} value={p}>Planta {p}</option>)}
+        </select>
+        <select value={filtro} onChange={(e) => setFiltro(e.target.value as Filtro)}
+          className="rounded border border-gray-300 px-2 py-1.5 text-sm">
+          <option value="todas">Todas</option>
+          <option value="salidas">Han salido</option>
+          <option value="averias">Con averias</option>
+          <option value="no_salen">No han salido</option>
+          <option value="late">Late check out</option>
+          <option value="limpias">Limpias</option>
+          <option value="sucias">Sucias</option>
+          <option value="bloqueadas">Bloqueadas</option>
+        </select>
+        <span className="text-sm text-gray-500">{visibles.length} habitaciones</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        {visibles.map((r) => <RoomCard key={r.id} room={r} />)}
+      </div>
+    </div>
+  );
+}
