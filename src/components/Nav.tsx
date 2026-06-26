@@ -42,6 +42,9 @@ export function Nav() {
           })}
         </nav>
 
+        <Link href="/cambiar-password" className="text-sm text-white/85 hover:text-white" title="Cambiar contraseña">
+          Contraseña
+        </Link>
         <span className="flex items-center gap-2 text-sm">
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-medium">
             {initial}

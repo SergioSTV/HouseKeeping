@@ -4,6 +4,7 @@ import type { Role, RoomStatus, CheckoutStatus } from './types';
 export const ROUTE_ACCESS: Record<string, Role[]> = {
   '/dashboard':   ['admin', 'governanta', 'subgovernanta', 'recepcion'],
   '/rack':        ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera'],
+  '/cambiar-password': ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera'],
   '/averias':     ['admin', 'governanta', 'subgovernanta', 'recepcion'],
   '/comentarios': ['admin', 'governanta', 'subgovernanta', 'recepcion'],
   '/usuarios':    ['admin'],

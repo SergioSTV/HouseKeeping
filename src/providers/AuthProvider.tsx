@@ -3,7 +3,8 @@ import {
   createContext, useContext, useEffect, useState, type ReactNode,
 } from 'react';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import type { Role } from '@/lib/types';
 
 interface AuthState {
@@ -11,6 +12,7 @@ interface AuthState {
   role: Role | null;
   assignedHotels: string[];
   displayName: string;
+  mustChangePassword: boolean | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
@@ -22,12 +24,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<Role | null>(null);
   const [assignedHotels, setAssignedHotels] = useState<string[]>([]);
   const [displayName, setDisplayName] = useState('');
+  const [mustChangePassword, setMustChangePassword] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     return onAuthStateChanged(auth, async (u) => {
       if (u) {
-        // Los claims (rol y hoteles) viajan dentro del ID token.
         const token = await u.getIdTokenResult();
         setUser(u);
         setRole((token.claims.role as Role) ?? null);
@@ -38,10 +40,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole(null);
         setAssignedHotels([]);
         setDisplayName('');
+        setMustChangePassword(null);
       }
       setLoading(false);
     });
   }, []);
+
+  // Sigue el flag mustChangePassword del documento del usuario en tiempo real.
+  useEffect(() => {
+    if (!user) { setMustChangePassword(null); return; }
+    const unsub = onSnapshot(doc(db, 'users', user.uid), (d) => {
+      setMustChangePassword(d.exists() ? !!d.data().mustChangePassword : false);
+    }, () => setMustChangePassword(false));
+    return () => unsub();
+  }, [user]);
 
   async function logout() {
     await signOut(auth);
@@ -50,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <Ctx.Provider value={{ user, role, assignedHotels, displayName, loading, logout }}>
+    <Ctx.Provider value={{ user, role, assignedHotels, displayName, mustChangePassword, loading, logout }}>
       {children}
     </Ctx.Provider>
   );
