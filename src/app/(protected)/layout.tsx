@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/providers/AuthProvider';
 import { HotelProvider } from '@/providers/HotelProvider';
+import { NotificationsProvider } from '@/providers/NotificationsProvider';
 import { Nav } from '@/components/Nav';
 import { canAccess } from '@/lib/roles';
 
@@ -14,7 +15,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (loading) return;
     if (!user) { router.replace('/login'); return; }
-    // Mientras tenga que cambiar la contrasena, queda bloqueado en esa pantalla.
     if (mustChangePassword === true && pathname !== '/cambiar-password') {
       router.replace('/cambiar-password');
       return;
@@ -27,8 +27,10 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   return (
     <HotelProvider>
-      <Nav />
-      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+      <NotificationsProvider>
+        <Nav />
+        <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+      </NotificationsProvider>
     </HotelProvider>
   );
 }

@@ -123,3 +123,16 @@ export async function roomHistoryRefExists(hotelId: string, roomId: string) {
   const snap = await getDoc(doc(db, 'hotels', hotelId, 'rooms', roomId));
   return snap.exists();
 }
+
+export async function addCambioHabitacion(
+  hotelId: string,
+  de: string,
+  a: string,
+  motivo: string,
+  actor: ActorRef,
+) {
+  await addDoc(collection(db, 'hotels', hotelId, 'cambios_habitacion'), {
+    de, a, motivo: motivo || '',
+    creadoPor: actor, createdAt: serverTimestamp(), dayKey: dayKey(),
+  });
+}

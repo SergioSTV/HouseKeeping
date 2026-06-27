@@ -73,6 +73,17 @@ service cloud.firestore {
         allow read:  if isStaff() && inHotel();
         allow write: if (role() in ['admin','recepcion']) && inHotel();
       }
+
+      // Cambios de habitacion: los crea Recepcion (y admin); los ve el staff.
+      match /cambios_habitacion/{id} {
+        allow read:   if isStaff() && inHotel();
+        allow create: if (role() in ['admin','recepcion']) && inHotel();
+        allow update, delete: if isAdmin();
+      }
+      match /cambios_archive/{id} {
+        allow read:  if isStaff() && inHotel();
+        allow write: if false;
+      }
     }
   }
 }

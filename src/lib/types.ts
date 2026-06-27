@@ -80,3 +80,13 @@ export interface AppUser {
   mustChangePassword: boolean;
   active: boolean;
 }
+
+export interface CambioHabitacion {
+  id: string;
+  de: string;
+  a: string;
+  motivo?: string;
+  creadoPor: ActorRef;
+  createdAt?: unknown;
+  dayKey: string;
+}

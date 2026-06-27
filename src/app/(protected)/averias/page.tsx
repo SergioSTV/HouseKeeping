@@ -1,6 +1,8 @@
 'use client';
+import { useEffect } from 'react';
 import { useHotel } from '@/providers/HotelProvider';
 import { useAverias } from '@/hooks/useAverias';
+import { useNotifications } from '@/providers/NotificationsProvider';
 
 function exportarCSV(rows: { roomNumber: string; tipo: string; descripcion: string; hora: string }[]) {
   const head = 'Habitacion,Tipo,Descripcion,Hora\n';
@@ -15,6 +17,8 @@ function exportarCSV(rows: { roomNumber: string; tipo: string; descripcion: stri
 export default function AveriasPage() {
   const { hotelId } = useHotel();
   const { averias, loading } = useAverias(hotelId);
+  const { markSeen } = useNotifications();
+  useEffect(() => { markSeen('averias'); }, [markSeen]);
 
   const rows = averias.map((a) => ({
     roomNumber: a.roomNumber,

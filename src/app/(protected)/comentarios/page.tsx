@@ -1,5 +1,7 @@
 'use client';
+import { useEffect } from 'react';
 import { useComentarios } from '@/hooks/useComentarios';
+import { useNotifications } from '@/providers/NotificationsProvider';
 import { useHotel } from '@/providers/HotelProvider';
 
 const TIPO_COLOR: Record<string, string> = {
@@ -11,6 +13,8 @@ const TIPO_COLOR: Record<string, string> = {
 export default function ComentariosPage() {
   const { hotelId } = useHotel();
   const { comentarios, loading } = useComentarios(hotelId);
+  const { markSeen } = useNotifications();
+  useEffect(() => { markSeen('comentarios'); }, [markSeen]);
 
   if (loading) return <p className="text-sm text-gray-500">Cargando…</p>;
 

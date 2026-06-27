@@ -124,6 +124,17 @@ export const purgarAverias = onSchedule(
         if (++n >= 200) { await batch.commit(); batch = db.batch(); n = 0; }
       }
       if (n > 0) await batch.commit();
+
+      // Cambios de habitacion: mismo barrido (archivar + limpiar).
+      const cambios = await db.collection(`hotels/${hotel.id}/cambios_habitacion`).get();
+      let cb = db.batch();
+      let cn = 0;
+      for (const doc of cambios.docs) {
+        cb.set(db.doc(`hotels/${hotel.id}/cambios_archive/${doc.id}`), doc.data());
+        cb.delete(doc.ref);
+        if (++cn >= 200) { await cb.commit(); cb = db.batch(); cn = 0; }
+      }
+      if (cn > 0) await cb.commit();
     }
   },
 );
