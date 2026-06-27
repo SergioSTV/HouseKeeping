@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { toEmail } from '@/lib/config';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const cred = await signInWithEmailAndPassword(auth, toEmail(usuario), password);
       const idToken = await cred.user.getIdToken();
       await fetch('/api/session', {
         method: 'POST',
@@ -24,7 +25,7 @@ export default function LoginPage() {
       });
       router.replace('/rack');
     } catch {
-      setError('Credenciales incorrectas.');
+      setError('Usuario o contraseña incorrectos.');
     } finally {
       setLoading(false);
     }
@@ -44,8 +45,8 @@ export default function LoginPage() {
         </div>
         <div className="p-6">
           <input
-            value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="Correo" type="email" autoComplete="username"
+            value={usuario} onChange={(e) => setUsuario(e.target.value)}
+            placeholder="Usuario" autoComplete="username"
             className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-hotel-primary"
           />
           <input

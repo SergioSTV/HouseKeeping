@@ -5,6 +5,7 @@ import { httpsCallable, getFunctions } from 'firebase/functions';
 import { db, app } from '@/lib/firebase';
 import { useHotel } from '@/providers/HotelProvider';
 import { ROLE_LABELS } from '@/lib/roles';
+import { toEmail, toUsername } from '@/lib/config';
 import type { AppUser, Role } from '@/lib/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -14,7 +15,7 @@ const fns = () => getFunctions(app, 'europe-west1');
 export default function UsuariosPage() {
   const { hotels } = useHotel();
   const [users, setUsers] = useState<AppUser[]>([]);
-  const [email, setEmail] = useState('');
+  const [usuario, setUsuario] = useState('');
   const [nombre, setNombre] = useState('');
   const [role, setRole] = useState<Role>('camarera');
   const [asignados, setAsignados] = useState<string[]>([]);
@@ -31,9 +32,9 @@ export default function UsuariosPage() {
     setMsg('Creando…');
     try {
       const fn = httpsCallable(fns(), 'crearUsuario');
-      const res: any = await fn({ email, displayName: nombre, role, assignedHotels: asignados });
+      const res: any = await fn({ email: toEmail(usuario), displayName: nombre, role, assignedHotels: asignados });
       setMsg(`Usuario creado. Contraseña por defecto: SalouPark2026! (UID ${res.data.uid})`);
-      setEmail(''); setNombre(''); setAsignados([]);
+      setUsuario(''); setNombre(''); setAsignados([]);
       cargar();
     } catch (e: any) {
       setMsg('Error: ' + (e?.message || 'no se pudo crear'));
@@ -77,7 +78,7 @@ export default function UsuariosPage() {
         <div className="grid gap-2 sm:grid-cols-2">
           <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre"
             className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-hotel-primary" />
-          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Correo o usuario (ej. maria@saloupark.local)" type="email"
+          <input value={usuario} onChange={(e) => setUsuario(e.target.value)} placeholder="Usuario (ej. maria)"
             className="rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-hotel-primary" />
           <select value={role} onChange={(e) => setRole(e.target.value as Role)}
             className="rounded-lg border border-gray-300 px-3 py-2 text-sm">
@@ -115,7 +116,7 @@ export default function UsuariosPage() {
           <tbody>
             {users.map((u) => (
               <tr key={u.uid} className="border-t border-gray-100">
-                <td className="px-3 py-2">{u.displayName}<div className="text-xs text-gray-400">{u.email}</div></td>
+                <td className="px-3 py-2">{u.displayName}<div className="text-xs text-gray-400">{toUsername(u.email)}</div></td>
                 <td className="px-3 py-2">{ROLE_LABELS[u.role]}</td>
                 <td className="px-3 py-2">{(u.assignedHotels ?? []).join(', ') || '—'}</td>
                 <td className="px-3 py-2">

@@ -1,19 +1,40 @@
 'use client';
 import { useState } from 'react';
 import { STATUS_HEX, STATUS_LABELS, CHECKOUT_LABELS } from '@/lib/roles';
+import { changeStatus, setCheckout } from '@/lib/actions';
+import { useAuth } from '@/providers/AuthProvider';
+import { useHotel } from '@/providers/HotelProvider';
 import type { Room } from '@/lib/types';
 import { RoomDetailModal } from './RoomDetailModal';
 
-// Tarjeta del rack: pintada del color del estado y tappable para abrir la ficha.
 export function RoomCard({ room }: { room: Room }) {
   const [open, setOpen] = useState(false);
+  const { role, user, displayName } = useAuth();
+  const { hotelId } = useHotel();
   const c = STATUS_HEX[room.status];
+  const actor = user ? { uid: user.uid, name: displayName } : null;
+
+  // Acciones rapidas segun rol: un toque, sin abrir la ficha.
+  const quick: { label: string; run: () => void }[] = [];
+  if (actor && hotelId) {
+    if (role === 'camarera') {
+      quick.push({ label: 'Lista', run: () => changeStatus(hotelId, room, 'lista_revision', actor) });
+    } else if (role === 'governanta' || role === 'subgovernanta' || role === 'admin') {
+      quick.push({ label: 'Limpia', run: () => changeStatus(hotelId, room, 'limpia', actor) });
+      quick.push({ label: 'Sucia', run: () => changeStatus(hotelId, room, 'sucia', actor) });
+    } else if (role === 'recepcion') {
+      quick.push({ label: 'Check out', run: () => setCheckout(hotelId, room, 'ya_checkout', actor) });
+    }
+  }
 
   return (
     <>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen(true)}
-        className="rounded-xl border border-black/5 p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-black/10"
+        onKeyDown={(e) => { if (e.key === 'Enter') setOpen(true); }}
+        className="cursor-pointer rounded-xl border border-black/5 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-black/10"
         style={{ backgroundColor: c.bg }}
       >
         <div className="flex items-start gap-2.5">
@@ -39,9 +60,23 @@ export function RoomCard({ room }: { room: Room }) {
                 )}
               </div>
             )}
+            {quick.length > 0 && (
+              <div className="mt-2 flex gap-1.5">
+                {quick.map((q) => (
+                  <button
+                    key={q.label}
+                    onClick={(e) => { e.stopPropagation(); q.run(); }}
+                    className="rounded-md bg-white/70 px-2 py-1 text-[11px] font-medium transition hover:bg-white"
+                    style={{ color: c.fg }}
+                  >
+                    {q.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      </button>
+      </div>
       {open && <RoomDetailModal room={room} onClose={() => setOpen(false)} />}
     </>
   );

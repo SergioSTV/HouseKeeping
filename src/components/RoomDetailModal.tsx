@@ -131,6 +131,14 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
                     {CHECKOUT_LABELS[co]}
                   </button>
                 ))}
+                {live.checkout !== 'ninguno' && (
+                  <button
+                    onClick={() => setCheckout(hotelId, live, 'ninguno', actor)}
+                    className="rounded-lg border border-gray-300 px-2.5 py-1 text-sm transition hover:border-hotel-primary hover:text-hotel-primary"
+                  >
+                    Quitar check out
+                  </button>
+                )}
                 <button
                   onClick={() => setVip(hotelId, live, !live.vip, actor)}
                   className="rounded-lg border border-gray-300 px-2.5 py-1 text-sm transition hover:border-hotel-primary hover:text-hotel-primary"
