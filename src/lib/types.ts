@@ -44,6 +44,7 @@ export interface Room {
   lateCheckoutDate?: string | null;
   vip: boolean;
   blocked: boolean;
+  rush?: boolean;
   updatedBy?: ActorRef;
   updatedAt?: unknown;
 }
@@ -89,4 +90,23 @@ export interface CambioHabitacion {
   creadoPor: ActorRef;
   createdAt?: unknown;
   dayKey: string;
+}
+
+export interface LlegadaExtra {
+  id: string;
+  personas: number;
+  habitacion: string;
+  fechaEntrada: string;
+  fechaSalida: string;
+  creadoPor: ActorRef;
+  createdAt?: unknown;
+}
+
+export interface ObjetoPerdido {
+  id: string;
+  descripcion: string;
+  lugar: string;
+  estado: 'guardado' | 'entregado';
+  creadoPor: ActorRef;
+  createdAt?: unknown;
 }

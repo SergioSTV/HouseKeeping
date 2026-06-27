@@ -6,7 +6,7 @@ import { RoomCard } from '@/components/RoomCard';
 import { STATUS_LABELS } from '@/lib/roles';
 import type { RoomStatus } from '@/lib/types';
 
-type Filtro = 'todas' | 'salidas' | 'averias' | 'no_salen' | 'late' | 'limpias' | 'sucias' | 'bloqueadas';
+type Filtro = 'todas' | 'salidas' | 'averias' | 'no_salen' | 'late' | 'limpias' | 'sucias' | 'bloqueadas' | 'lobby';
 
 export default function RackPage() {
   const { hotelId, loading: loadingHotel } = useHotel();
@@ -29,6 +29,7 @@ export default function RackPage() {
       case 'limpias': return r.status === 'limpia';
       case 'sucias': return r.status === 'sucia' || r.status === 'sucia_guardia';
       case 'bloqueadas': return r.blocked || r.status === 'averia_grave';
+      case 'lobby': return !!r.rush;
       default: return true;
     }
   });
@@ -53,6 +54,7 @@ export default function RackPage() {
           <option value="limpias">Limpias</option>
           <option value="sucias">Sucias</option>
           <option value="bloqueadas">Bloqueadas</option>
+          <option value="lobby">Esperando en lobby</option>
         </select>
         <span className="text-sm text-gray-500">{visibles.length} habitaciones</span>
       </div>

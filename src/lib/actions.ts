@@ -1,6 +1,6 @@
 'use client';
 import {
-  doc, updateDoc, addDoc, collection, serverTimestamp, getDoc,
+  doc, updateDoc, addDoc, deleteDoc, collection, serverTimestamp, getDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Room, RoomStatus, CheckoutStatus, ActorRef } from './types';
@@ -109,14 +109,42 @@ export async function addComentario(
 export async function addLlegadaExtra(
   hotelId: string,
   personas: number,
+  habitacion: string,
   fechaEntrada: string,
   fechaSalida: string,
   actor: ActorRef,
 ) {
   await addDoc(collection(db, 'hotels', hotelId, 'llegadas_extras'), {
-    personas, fechaEntrada, fechaSalida,
+    personas, habitacion, fechaEntrada, fechaSalida,
     creadoPor: actor, createdAt: serverTimestamp(),
   });
+}
+
+export async function removeLlegada(hotelId: string, id: string) {
+  await deleteDoc(doc(db, 'hotels', hotelId, 'llegadas_extras', id));
+}
+
+// Rush: cliente esperando en el lobby por esa habitacion.
+export async function setRush(hotelId: string, room: Room, rush: boolean, actor: ActorRef) {
+  await updateDoc(doc(db, 'hotels', hotelId, 'rooms', room.id), {
+    rush, updatedBy: actor, updatedAt: serverTimestamp(),
+  });
+}
+
+// Objetos perdidos (lost & found).
+export async function addObjeto(hotelId: string, descripcion: string, lugar: string, actor: ActorRef) {
+  await addDoc(collection(db, 'hotels', hotelId, 'objetos_perdidos'), {
+    descripcion, lugar, estado: 'guardado',
+    creadoPor: actor, createdAt: serverTimestamp(),
+  });
+}
+
+export async function setObjetoEstado(hotelId: string, id: string, estado: 'guardado' | 'entregado') {
+  await updateDoc(doc(db, 'hotels', hotelId, 'objetos_perdidos', id), { estado });
+}
+
+export async function removeObjeto(hotelId: string, id: string) {
+  await deleteDoc(doc(db, 'hotels', hotelId, 'objetos_perdidos', id));
 }
 
 export async function roomHistoryRefExists(hotelId: string, roomId: string) {

@@ -41,7 +41,7 @@ service cloud.firestore {
                    .hasOnly(['status','updatedBy','updatedAt']))
           || (role() == 'recepcion' && inHotel()
               && request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(['checkout','lateCheckoutDate','vip','updatedBy','updatedAt']));
+                   .hasOnly(['checkout','lateCheckoutDate','vip','rush','updatedBy','updatedAt']));
 
         // Historial (icono de 3 puntitos): lo leen y crean los que ven el rack.
         match /history/{h} {
@@ -72,6 +72,12 @@ service cloud.firestore {
       match /llegadas_extras/{id} {
         allow read:  if isStaff() && inHotel();
         allow write: if (role() in ['admin','recepcion']) && inHotel();
+      }
+
+      // Objetos perdidos (lost & found): los gestiona el staff. No se purgan.
+      match /objetos_perdidos/{id} {
+        allow read:  if isStaff() && inHotel();
+        allow write: if isStaff() && inHotel();
       }
 
       // Cambios de habitacion: los crea Recepcion (y admin); los ve el staff.

@@ -7,7 +7,7 @@ import { useHotel } from '@/providers/HotelProvider';
 import {
   STATUS_PERMISSIONS, CHECKOUT_PERMISSIONS, STATUS_HEX, STATUS_LABELS, CHECKOUT_LABELS,
 } from '@/lib/roles';
-import { changeStatus, setCheckout, setVip, reportAveria, addComentario } from '@/lib/actions';
+import { changeStatus, setCheckout, setVip, setRush, reportAveria, addComentario } from '@/lib/actions';
 import type { Room, RoomStatus, CheckoutStatus } from '@/lib/types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -144,6 +144,12 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
                   className="rounded-lg border border-gray-300 px-2.5 py-1 text-sm transition hover:border-hotel-primary hover:text-hotel-primary"
                 >
                   {live.vip ? 'Quitar VIP' : 'Marcar VIP'}
+                </button>
+                <button
+                  onClick={() => setRush(hotelId, live, !live.rush, actor)}
+                  className="rounded-lg border border-gray-300 px-2.5 py-1 text-sm transition hover:border-hotel-primary hover:text-hotel-primary"
+                >
+                  {live.rush ? 'Quitar lobby' : 'Cliente en lobby'}
                 </button>
               </div>
             </section>
