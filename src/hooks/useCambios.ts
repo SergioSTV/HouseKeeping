@@ -15,7 +15,7 @@ export function useCambios(hotelId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setCambios(snap.docs.map((d) => ({ id: d.id, ...d.data() } as CambioHabitacion)));
       setLoading(false);
-    });
+    }, (e) => { console.warn('cambios listener', e); setLoading(false); });
     return () => unsub();
   }, [hotelId]);
 

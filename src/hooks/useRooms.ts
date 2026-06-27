@@ -20,7 +20,7 @@ export function useRooms(hotelId: string | null) {
     const unsub = onSnapshot(q, (snap) => {
       setRooms(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Room)));
       setLoading(false);
-    });
+    }, (e) => { console.warn('rooms listener', e); setLoading(false); });
     return () => unsub();
   }, [hotelId]);
 

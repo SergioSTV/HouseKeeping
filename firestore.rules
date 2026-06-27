@@ -68,10 +68,11 @@ service cloud.firestore {
         allow read, write: if isStaff() && inHotel();
       }
 
-      // Llegadas extras: las gestiona Recepcion (y admin).
+      // Llegadas extras: las crea Recepcion (y admin); las purgan tambien Governanta/Subgovernanta.
       match /llegadas_extras/{id} {
-        allow read:  if isStaff() && inHotel();
-        allow write: if (role() in ['admin','recepcion']) && inHotel();
+        allow read:          if isStaff() && inHotel();
+        allow create, update: if (role() in ['admin','recepcion']) && inHotel();
+        allow delete:        if (role() in ['admin','recepcion','governanta','subgovernanta']) && inHotel();
       }
 
       // Objetos perdidos (lost & found): los gestiona el staff. No se purgan.

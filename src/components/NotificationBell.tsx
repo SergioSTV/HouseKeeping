@@ -44,7 +44,7 @@ export function NotificationBell() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-50 mt-2 w-80 max-w-[88vw] overflow-hidden rounded-xl border border-gray-200 bg-white text-gray-800 shadow-lg">
+          <div className="fixed right-2 top-14 z-50 w-[min(92vw,22rem)] overflow-hidden rounded-xl border border-gray-200 bg-white text-gray-800 shadow-lg sm:right-3">
             <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2">
               <span className="text-sm font-medium">Notificaciones</span>
               <button onClick={() => { markAllSeen(); }} className="text-xs text-hotel-primary hover:underline">Marcar todo leído</button>

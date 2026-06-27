@@ -9,7 +9,11 @@ export function useLlegadas(hotelId: string | null) {
   useEffect(() => {
     if (!hotelId) { setLlegadas([]); return; }
     const q = query(collection(db, 'hotels', hotelId, 'llegadas_extras'), orderBy('createdAt', 'desc'));
-    return onSnapshot(q, (snap) => setLlegadas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as LlegadaExtra))));
+    return onSnapshot(
+      q,
+      (snap) => setLlegadas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as LlegadaExtra))),
+      (e) => console.warn('llegadas listener', e),
+    );
   }, [hotelId]);
   return { llegadas };
 }

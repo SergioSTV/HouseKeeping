@@ -13,7 +13,14 @@ export function LlegadasModal({ onClose }: { onClose: () => void }) {
   const [habitacion, setHabitacion] = useState('');
   const [entrada, setEntrada] = useState('');
   const [salida, setSalida] = useState('');
-  const puede = role === 'recepcion' || role === 'admin';
+  const puedeCrear = role === 'recepcion' || role === 'admin';
+  const puedePurgar = ['admin', 'recepcion', 'governanta', 'subgovernanta'].includes(role || '');
+
+  async function vaciar() {
+    if (!hotelId) return;
+    if (!confirm('¿Vaciar todas las llegadas extras?')) return;
+    for (const l of llegadas) await removeLlegada(hotelId, l.id);
+  }
 
   async function crear() {
     if (!habitacion.trim() || !hotelId || !user) return;
@@ -26,10 +33,13 @@ export function LlegadasModal({ onClose }: { onClose: () => void }) {
       <div className="max-h-[88vh] w-full max-w-md overflow-auto rounded-t-2xl bg-white shadow-xl sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3">
           <h3 className="font-semibold">Llegadas extras · {llegadas.length}</h3>
-          <button onClick={onClose} aria-label="Cerrar" className="text-xl leading-none text-gray-400">✕</button>
+          <div className="flex items-center gap-3">
+            {puedePurgar && llegadas.length > 0 && <button onClick={vaciar} className="text-sm text-red-600 hover:underline">Vaciar todas</button>}
+            <button onClick={onClose} aria-label="Cerrar" className="text-xl leading-none text-gray-400">✕</button>
+          </div>
         </div>
 
-        {puede && (
+        {puedeCrear && (
           <div className="border-b border-gray-100 px-5 py-3">
             <div className="flex flex-wrap items-end gap-2">
               <div>
@@ -66,7 +76,7 @@ export function LlegadasModal({ onClose }: { onClose: () => void }) {
                   <div className="font-semibold">Hab. {l.habitacion} · {l.personas} pers.</div>
                   <div className="text-xs text-gray-500">{l.fechaEntrada || '—'} → {l.fechaSalida || '—'}</div>
                 </div>
-                {puede && (
+                {puedePurgar && (
                   <button onClick={() => removeLlegada(hotelId!, l.id)} className="text-xs text-red-600 hover:underline">Quitar</button>
                 )}
               </li>

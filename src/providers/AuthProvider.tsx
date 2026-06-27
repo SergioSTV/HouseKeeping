@@ -2,7 +2,7 @@
 import {
   createContext, useContext, useEffect, useState, type ReactNode,
 } from 'react';
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
+import { onIdTokenChanged, signOut, type User } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { Role } from '@/lib/types';
@@ -28,13 +28,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, async (u) => {
+    // onIdTokenChanged tambien salta cuando el token se refresca (cada hora),
+    // momento en que renovamos la cookie de sesion para que el middleware no caduque.
+    return onIdTokenChanged(auth, async (u) => {
       if (u) {
         const token = await u.getIdTokenResult();
         setUser(u);
         setRole((token.claims.role as Role) ?? null);
         setAssignedHotels((token.claims.hotels as string[]) ?? []);
         setDisplayName(u.displayName ?? u.email ?? '');
+        try {
+          await fetch('/api/session', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: token.token }),
+          });
+        } catch { /* sin red: la cookie anterior sigue valida */ }
       } else {
         setUser(null);
         setRole(null);

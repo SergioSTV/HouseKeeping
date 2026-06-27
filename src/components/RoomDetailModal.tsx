@@ -28,6 +28,7 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
   const [nuevo, setNuevo] = useState('');
   const [tipoComentario, setTipoComentario] = useState<'vip' | 'importante' | 'urgente'>('importante');
   const [showAveria, setShowAveria] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const isStaff = role ? ['admin', 'governanta', 'subgovernanta', 'recepcion'].includes(role) : false;
 
@@ -97,10 +98,10 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
           <button onClick={onClose} aria-label="Cerrar" className="rounded-full p-1 text-xl leading-none" style={{ color: c.fg }}>✕</button>
         </div>
 
-        <div className="space-y-5 px-5 py-4">
+        <div className="divide-y divide-gray-100 px-5">
           {/* Acciones de estado segun rol */}
           {statesForRole.length > 0 && (
-            <section>
+            <section className="py-4">
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Cambiar estado</h4>
               <div className="flex flex-wrap gap-1.5">
                 {statesForRole.map((s: RoomStatus) => (
@@ -119,7 +120,7 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
 
           {/* Checkout y VIP: recepcion / admin */}
           {CHECKOUT_PERMISSIONS[role] && (
-            <section>
+            <section className="py-4">
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Check out</h4>
               <div className="flex flex-wrap gap-1.5">
                 {CHECKOUTS.map((co) => (
@@ -156,7 +157,7 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
           )}
 
           {/* Averias */}
-          <section>
+          <section className="py-4">
             <div className="mb-2 flex items-center justify-between">
               <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-400">Averías</h4>
               <button onClick={() => setShowAveria(true)} className="text-sm font-medium text-red-600 hover:underline">+ Reportar</button>
@@ -182,7 +183,7 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
 
           {/* Comentarios / informacion adicional: solo staff */}
           {isStaff && (
-            <section>
+            <section className="py-4">
               <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Comentarios e información</h4>
               {comentariosSorted.length === 0 && <p className="mb-2 text-sm text-gray-400">Sin comentarios.</p>}
               <ul className="mb-2 space-y-1.5">
@@ -218,22 +219,32 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
             </section>
           )}
 
-          {/* Historial */}
-          <section>
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Historial</h4>
-            {history.length === 0
-              ? <p className="text-sm text-gray-400">Sin cambios registrados.</p>
-              : (
-                <ul className="space-y-1.5">
-                  {history.map((h) => (
-                    <li key={h.id} className="text-sm">
-                      <span className="font-medium">{h.userName}</span>
-                      <span className="text-gray-400"> · {ts(h.timestamp)}</span>
-                      <div className="text-gray-600">{h.action}: {h.fromStatus} → {h.toStatus}</div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+          {/* Historial (plegable) */}
+          <section className="py-4">
+            <button
+              onClick={() => setShowHistory((v) => !v)}
+              className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wide text-gray-400"
+            >
+              <span>Historial de acciones{history.length ? ` · ${history.length}` : ''}</span>
+              <span className="rounded-md border border-gray-200 px-2 py-0.5 text-[11px] normal-case text-gray-500">
+                {showHistory ? 'Ocultar' : 'Ver'}
+              </span>
+            </button>
+            {showHistory && (
+              history.length === 0
+                ? <p className="mt-2 text-sm text-gray-400">Sin cambios registrados.</p>
+                : (
+                  <ul className="mt-2 space-y-1.5">
+                    {history.map((h) => (
+                      <li key={h.id} className="text-sm">
+                        <span className="font-medium">{h.userName}</span>
+                        <span className="text-gray-400"> · {ts(h.timestamp)}</span>
+                        <div className="text-gray-600">{h.action}: {h.fromStatus} → {h.toStatus}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )
+            )}
           </section>
         </div>
       </div>
