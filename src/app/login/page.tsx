@@ -4,31 +4,46 @@ import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { toEmail } from '@/lib/config';
+import { entrarConHuella, huellaDisponible, mensajeHuella } from '@/lib/passkey';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function LoginPage() {
   const router = useRouter();
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingH, setLoadingH] = useState(false);
+
+  async function sellarSesion() {
+    const idToken = await auth.currentUser!.getIdToken();
+    await fetch('/api/session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    router.replace('/rack');
+  }
 
   async function onSubmit() {
-    setError('');
-    setLoading(true);
+    setError(''); setLoading(true);
     try {
-      const cred = await signInWithEmailAndPassword(auth, toEmail(usuario), password);
-      const idToken = await cred.user.getIdToken();
-      await fetch('/api/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-      router.replace('/rack');
+      await signInWithEmailAndPassword(auth, toEmail(usuario), password);
+      await sellarSesion();
     } catch {
       setError('Usuario o contraseña incorrectos.');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
+  }
+
+  async function onHuella() {
+    setError('');
+    if (!usuario.trim()) { setError('Escribe tu usuario primero.'); return; }
+    setLoadingH(true);
+    try {
+      await entrarConHuella(toEmail(usuario));
+      await sellarSesion();
+    } catch (e: any) {
+      setError(mensajeHuella(e));
+    } finally { setLoadingH(false); }
   }
 
   return (
@@ -39,7 +54,7 @@ export default function LoginPage() {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" />
             </svg>
-            MantenimientoHUB
+            4RHousekeeping
           </div>
           <p className="mt-1 text-sm text-white/80">Operativa de Pisos y Recepción</p>
         </div>
@@ -62,6 +77,23 @@ export default function LoginPage() {
           >
             {loading ? 'Entrando…' : 'Entrar'}
           </button>
+
+          {huellaDisponible() && (
+            <>
+              <div className="my-3 flex items-center gap-2 text-xs text-gray-400">
+                <span className="h-px flex-1 bg-gray-200" /> o <span className="h-px flex-1 bg-gray-200" />
+              </div>
+              <button
+                onClick={onHuella} disabled={loadingH}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-hotel-primary px-3 py-2.5 text-sm font-medium text-hotel-primary transition hover:bg-hotel-secondary disabled:opacity-60"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 11c0 3 0 5-1 7M7 18c1-2 1-4 1-6a4 4 0 0 1 6-3M5 12a7 7 0 0 1 11-5.7M12 11v1c0 4 .5 6-1 9M17 11c0 4-.3 6-1 8" />
+                </svg>
+                {loadingH ? 'Leyendo huella…' : 'Entrar con huella'}
+              </button>
+            </>
+          )}
           <p className="mt-3 text-center text-xs text-gray-400">
             ¿Olvidaste tu contraseña? Pide al administrador que te la restablezca.
           </p>

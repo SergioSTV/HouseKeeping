@@ -1,6 +1,6 @@
 {
-  "name": "MantenimientoHUB",
-  "short_name": "MantHUB",
+  "name": "4RHousekeeping",
+  "short_name": "4RHK",
   "description": "Operativa de Pisos y Recepcion en tiempo real",
   "start_url": "/rack",
   "display": "standalone",

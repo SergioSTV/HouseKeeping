@@ -3,7 +3,7 @@ import './globals.css';
 import { AuthProvider } from '@/providers/AuthProvider';
 
 export const metadata: Metadata = {
-  title: 'MantenimientoHUB',
+  title: '4RHousekeeping',
   description: 'Operativa de Pisos y Recepcion en tiempo real',
   manifest: '/manifest.json',
 };

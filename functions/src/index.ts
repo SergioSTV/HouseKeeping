@@ -152,3 +152,4 @@ export const avisoUrgente = onDocumentCreated('hotels/{hid}/comentarios/{id}', a
     },
   });
 });
+export * from './passkey';

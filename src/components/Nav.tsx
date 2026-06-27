@@ -21,8 +21,8 @@ export function Nav() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" />
             </svg>
-            <span className="hidden sm:inline">MantenimientoHUB</span>
-            <span className="sm:hidden">MantHUB</span>
+            <span className="hidden sm:inline">4RHousekeeping</span>
+            <span className="sm:hidden">4RHK</span>
           </span>
           <div className="flex items-center gap-2">
             <HotelSwitcher />

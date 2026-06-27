@@ -4,9 +4,12 @@
     "build": "tsc",
     "deploy": "firebase deploy --only functions"
   },
-  "engines": { "node": "20" },
+  "engines": {
+    "node": "20"
+  },
   "main": "lib/index.js",
   "dependencies": {
+    "@simplewebauthn/server": "^13.3.2",
     "firebase-admin": "^13.0.2",
     "firebase-functions": "^6.1.1"
   },
