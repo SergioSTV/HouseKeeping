@@ -21,17 +21,24 @@ export function playBeep() {
   if (!c) return;
   if (c.state === 'suspended') c.resume().catch(() => {});
   try {
-    const o = c.createOscillator();
-    const g = c.createGain();
-    o.connect(g); g.connect(c.destination);
-    o.type = 'sine';
-    o.frequency.setValueAtTime(880, c.currentTime);
-    o.frequency.setValueAtTime(1180, c.currentTime + 0.12);
-    g.gain.setValueAtTime(0.0001, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.2, c.currentTime + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.28);
-    o.start();
-    o.stop(c.currentTime + 0.3);
+    // Dos notas suaves tipo "ding-dong" (un aviso amable, no un pitido).
+    const notas = [
+      { f: 988, t: 0,    d: 0.18 }, // Si5
+      { f: 740, t: 0.14, d: 0.32 }, // Fa#5
+    ];
+    for (const n of notas) {
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.connect(g); g.connect(c.destination);
+      o.type = 'triangle';
+      o.frequency.value = n.f;
+      const t0 = c.currentTime + n.t;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + n.d);
+      o.start(t0);
+      o.stop(t0 + n.d + 0.02);
+    }
   } catch { /* nada */ }
 }
 

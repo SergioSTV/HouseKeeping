@@ -1,6 +1,6 @@
 'use client';
 import {
-  doc, updateDoc, addDoc, deleteDoc, collection, serverTimestamp, getDoc,
+  doc, updateDoc, addDoc, deleteDoc, collection, serverTimestamp, getDoc, writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Room, RoomStatus, CheckoutStatus, ActorRef } from './types';
@@ -182,4 +182,38 @@ export async function addComentarioDirecto(
     creadoPor: actor,
     createdAt: serverTimestamp(),
   });
+}
+
+// ---- Pedidos de habitacion (toallas, sabanas, etc.) ----
+export async function addPedido(hotelId: string, habitacion: string, descripcion: string, actor: ActorRef) {
+  await addDoc(collection(db, 'hotels', hotelId, 'pedidos'), {
+    habitacion, descripcion, estado: 'pendiente',
+    creadoPor: actor, createdAt: serverTimestamp(), dayKey: dayKey(),
+  });
+}
+
+export async function setPedidoHecho(hotelId: string, id: string, hecho: boolean) {
+  await updateDoc(doc(db, 'hotels', hotelId, 'pedidos', id), { estado: hecho ? 'hecho' : 'pendiente' });
+}
+
+export async function removePedido(hotelId: string, id: string) {
+  await deleteDoc(doc(db, 'hotels', hotelId, 'pedidos', id));
+}
+
+// ---- Marcar limpias en lote (por planta o por hotel) ----
+// Solo cambia las que estan pendientes de limpieza; respeta estados especiales.
+export async function markRoomsClean(hotelId: string, rooms: Room[], actor: ActorRef) {
+  const limpiables = rooms.filter((r) => ['sucia', 'sucia_guardia', 'lista_revision'].includes(r.status));
+  let batch = writeBatch(db);
+  let n = 0;
+  let cambiadas = 0;
+  for (const r of limpiables) {
+    batch.update(doc(db, 'hotels', hotelId, 'rooms', r.id), {
+      status: 'limpia', updatedBy: actor, updatedAt: serverTimestamp(),
+    });
+    cambiadas++;
+    if (++n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; }
+  }
+  if (n > 0) await batch.commit();
+  return cambiadas;
 }

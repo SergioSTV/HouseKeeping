@@ -108,6 +108,24 @@ export const resetearContrasena = onCall(async (req) => {
   }
 });
 
+// ---- Eliminar usuario por completo (solo admin). ----
+export const eliminarUsuario = onCall(async (req) => {
+  if (req.auth?.token.role !== 'admin') {
+    throw new HttpsError('permission-denied', 'Solo el administrador.');
+  }
+  const { uid } = req.data as { uid: string };
+  if (uid === req.auth?.uid) {
+    throw new HttpsError('failed-precondition', 'No puedes eliminar tu propia cuenta.');
+  }
+  try {
+    await admin.auth().deleteUser(uid);
+    await admin.firestore().doc(`users/${uid}`).delete();
+    return { ok: true };
+  } catch (e) {
+    throw traducir(e);
+  }
+});
+
 // ---- Purga diaria de averias a las 00:00 (Europe/Madrid). Archiva y limpia. ----
 export const purgarAverias = onSchedule(
   { schedule: '0 0 * * *', timeZone: 'Europe/Madrid' },
@@ -135,6 +153,19 @@ export const purgarAverias = onSchedule(
         if (++cn >= 200) { await cb.commit(); cb = db.batch(); cn = 0; }
       }
       if (cn > 0) await cb.commit();
+
+      // Comentarios y pedidos: tambien se purgan a diario (la notificacion del dia queda limpia).
+      for (const col of ['comentarios', 'pedidos']) {
+        const snap = await db.collection(`hotels/${hotel.id}/${col}`).get();
+        let b = db.batch();
+        let k = 0;
+        for (const doc of snap.docs) {
+          b.set(db.doc(`hotels/${hotel.id}/${col}_archive/${doc.id}`), doc.data());
+          b.delete(doc.ref);
+          if (++k >= 200) { await b.commit(); b = db.batch(); k = 0; }
+        }
+        if (k > 0) await b.commit();
+      }
     }
   },
 );

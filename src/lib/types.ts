@@ -1,4 +1,10 @@
-export type Role = 'admin' | 'governanta' | 'subgovernanta' | 'recepcion' | 'camarera';
+export type Role =
+  | 'admin'
+  | 'governanta'
+  | 'subgovernanta'
+  | 'recepcion'
+  | 'camarera'
+  | 'camarera_guardia';
 
 export type RoomStatus =
   | 'sucia'
@@ -109,4 +115,14 @@ export interface ObjetoPerdido {
   estado: 'guardado' | 'entregado';
   creadoPor: ActorRef;
   createdAt?: unknown;
+}
+
+export interface Pedido {
+  id: string;
+  habitacion: string;
+  descripcion: string;
+  estado: 'pendiente' | 'hecho';
+  creadoPor: ActorRef;
+  createdAt?: unknown;
+  dayKey: string;
 }

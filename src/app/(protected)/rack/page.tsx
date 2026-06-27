@@ -1,6 +1,8 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { useHotel } from '@/providers/HotelProvider';
+import { useAuth } from '@/providers/AuthProvider';
+import { markRoomsClean } from '@/lib/actions';
 import { useRooms } from '@/hooks/useRooms';
 import { RoomCard } from '@/components/RoomCard';
 import { STATUS_LABELS } from '@/lib/roles';
@@ -13,6 +15,17 @@ export default function RackPage() {
   const { rooms, loading } = useRooms(hotelId);
   const [planta, setPlanta] = useState<number | 'todas'>('todas');
   const [filtro, setFiltro] = useState<Filtro>('todas');
+  const { role, user, displayName } = useAuth();
+  const puedeMarcar = ['admin', 'recepcion', 'governanta', 'subgovernanta'].includes(role || '');
+
+  async function marcarLimpias() {
+    if (!hotelId || !user) return;
+    const objetivo = planta === 'todas' ? rooms : rooms.filter((r) => r.floor === planta);
+    const ambito = planta === 'todas' ? 'todo el hotel' : `la planta ${planta}`;
+    if (!confirm(`¿Marcar limpias las habitaciones pendientes de ${ambito}? (no toca No molestar, Cliente no sale ni Avería grave)`)) return;
+    const n = await markRoomsClean(hotelId, objetivo, { uid: user.uid, name: displayName });
+    alert(n === 0 ? 'No había habitaciones pendientes de limpiar.' : `${n} habitaciones marcadas como limpias.`);
+  }
 
   const plantas = useMemo(
     () => Array.from(new Set(rooms.map((r) => r.floor))).sort((a, b) => a - b),
@@ -57,6 +70,14 @@ export default function RackPage() {
           <option value="lobby">Esperando en lobby</option>
         </select>
         <span className="text-sm text-gray-500">{visibles.length} habitaciones</span>
+        {puedeMarcar && (
+          <button
+            onClick={marcarLimpias}
+            className="ml-auto rounded-lg bg-hotel-primary px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90"
+          >
+            Marcar limpias {planta === 'todas' ? '(todo el hotel)' : `(planta ${planta})`}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

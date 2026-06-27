@@ -19,7 +19,7 @@ export function RoomCard({ room }: { room: Room }) {
   if (actor && hotelId) {
     if (role === 'camarera') {
       quick.push({ label: 'Lista', run: () => changeStatus(hotelId, room, 'lista_revision', actor) });
-    } else if (role === 'governanta' || role === 'subgovernanta' || role === 'admin') {
+    } else if (role === 'governanta' || role === 'subgovernanta' || role === 'admin' || role === 'camarera_guardia') {
       quick.push({ label: 'Limpia', run: () => changeStatus(hotelId, room, 'limpia', actor) });
       quick.push({ label: 'Sucia', run: () => changeStatus(hotelId, room, 'sucia', actor) });
     } else if (role === 'recepcion') {

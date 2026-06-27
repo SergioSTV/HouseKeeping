@@ -2,9 +2,9 @@ import type { Role, RoomStatus, CheckoutStatus } from './types';
 
 // ---- Acceso a rutas (apartados de la app) por rol ----
 export const ROUTE_ACCESS: Record<string, Role[]> = {
-  '/dashboard':   ['admin', 'governanta', 'subgovernanta', 'recepcion'],
-  '/rack':        ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera'],
-  '/cambiar-password': ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera'],
+  '/dashboard':   ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera_guardia'],
+  '/rack':        ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera', 'camarera_guardia'],
+  '/cambiar-password': ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera', 'camarera_guardia'],
   '/averias':     ['admin', 'governanta', 'subgovernanta', 'recepcion'],
   '/comentarios': ['admin', 'governanta', 'subgovernanta', 'recepcion'],
   '/usuarios':    ['admin'],
@@ -23,6 +23,7 @@ export const STATUS_PERMISSIONS: Record<Role, RoomStatus[]> = {
   subgovernanta: ['sucia', 'limpia', 'lista_revision', 'no_molestar', 'cliente_no_sale', 'averia_grave', 'sucia_guardia'],
   recepcion:     [],
   camarera:      ['lista_revision', 'no_molestar'],
+  camarera_guardia: ['limpia', 'sucia'],
 };
 
 // Recepcion gestiona el checkout, no el estado de limpieza.
@@ -32,6 +33,7 @@ export const CHECKOUT_PERMISSIONS: Record<Role, boolean> = {
   subgovernanta: false,
   recepcion: true,
   camarera: false,
+  camarera_guardia: false,
 };
 
 // ---- Etiquetas legibles ----
@@ -41,6 +43,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   subgovernanta: 'Subgovernanta',
   recepcion: 'Recepcion',
   camarera: 'Camarera de piso',
+  camarera_guardia: 'Camarera de guardia',
 };
 
 export const STATUS_LABELS: Record<RoomStatus, string> = {
