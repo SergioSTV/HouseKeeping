@@ -1,6 +1,6 @@
 'use client';
 import {
-  createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode,
+  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode,
 } from 'react';
 import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -48,7 +48,6 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   const seenKey = user ? `notif_seen_${user.uid}` : '';
   const muteKey = user ? `notif_muted_${user.uid}` : '';
 
-  // Cargar "visto" y "silencio" de este dispositivo.
   useEffect(() => {
     if (!user) return;
     try {
@@ -58,7 +57,6 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     } catch { /* nada */ }
   }, [user, seenKey, muteKey]);
 
-  // Suscripciones en tiempo real (solo staff).
   useEffect(() => {
     if (!hotelId || !isStaff) { setBySection({ averias: [], comentarios: [], cambios: [] }); return; }
     inited.current = { averias: false, comentarios: false, cambios: false };
@@ -89,16 +87,31 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     return () => unsubs.forEach((u) => u());
   }, [hotelId, isStaff]);
 
-  function persistSeen(next: Record<NotifSection, number>) {
-    setSeen(next);
-    try { localStorage.setItem(seenKey, JSON.stringify(next)); } catch { /* nada */ }
-  }
-  function markSeen(s: NotifSection) { persistSeen({ ...seenRef.current, [s]: Date.now() }); }
-  function markAllSeen() { persistSeen({ averias: Date.now(), comentarios: Date.now(), cambios: Date.now() }); }
-  function toggleMute() {
-    const v = !muted; setMuted(v);
-    try { localStorage.setItem(muteKey, v ? '1' : '0'); } catch { /* nada */ }
-  }
+  // Identidades ESTABLES: evita el bucle de renders.
+  const markSeen = useCallback((s: NotifSection) => {
+    setSeen((prev) => {
+      if (prev[s] && Date.now() - prev[s] < 500) return prev; // ya recién marcado
+      const next = { ...prev, [s]: Date.now() };
+      try { localStorage.setItem(seenKey, JSON.stringify(next)); } catch { /* nada */ }
+      return next;
+    });
+  }, [seenKey]);
+
+  const markAllSeen = useCallback(() => {
+    setSeen(() => {
+      const next = { averias: Date.now(), comentarios: Date.now(), cambios: Date.now() };
+      try { localStorage.setItem(seenKey, JSON.stringify(next)); } catch { /* nada */ }
+      return next;
+    });
+  }, [seenKey]);
+
+  const toggleMute = useCallback(() => {
+    setMuted((prev) => {
+      const v = !prev;
+      try { localStorage.setItem(muteKey, v ? '1' : '0'); } catch { /* nada */ }
+      return v;
+    });
+  }, [muteKey]);
 
   const { items, unread } = useMemo(() => {
     const all = [...bySection.averias, ...bySection.comentarios, ...bySection.cambios].sort((a, b) => b.ms - a.ms);

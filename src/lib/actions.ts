@@ -136,3 +136,22 @@ export async function addCambioHabitacion(
     creadoPor: actor, createdAt: serverTimestamp(), dayKey: dayKey(),
   });
 }
+
+// Crear comentario indicando el numero de habitacion (sin abrir la ficha).
+export async function addComentarioDirecto(
+  hotelId: string,
+  roomNumber: string,
+  texto: string,
+  tipo: 'vip' | 'importante' | 'urgente',
+  actor: ActorRef,
+) {
+  await addDoc(collection(db, 'hotels', hotelId, 'comentarios'), {
+    roomId: roomNumber,        // en el seed, el id de la habitacion es su numero
+    roomNumber,
+    texto,
+    tipo,
+    notificarGovernanta: tipo === 'urgente',
+    creadoPor: actor,
+    createdAt: serverTimestamp(),
+  });
+}
