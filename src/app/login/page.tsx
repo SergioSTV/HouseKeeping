@@ -6,6 +6,7 @@ import { auth } from '@/lib/firebase';
 import { toEmail } from '@/lib/config';
 import { entrarConHuella, huellaDisponible, mensajeHuella } from '@/lib/passkey';
 import { TextSizeButton } from '@/components/TextSizeButton';
+import { PasswordField } from '@/components/PasswordField';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default function LoginPage() {
@@ -87,11 +88,11 @@ export default function LoginPage() {
             placeholder="Usuario" autoComplete="username"
             className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-hotel-primary"
           />
-          <input
-            value={password} onChange={(e) => setPassword(e.target.value)}
-            placeholder="Contraseña" type="password" autoComplete="current-password"
+          <PasswordField
+            value={password} onChange={setPassword}
+            placeholder="Contraseña" autoComplete="current-password"
             onKeyDown={(e) => e.key === 'Enter' && onSubmit()}
-            className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-hotel-primary"
+            className="mb-3"
           />
           {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
           <button

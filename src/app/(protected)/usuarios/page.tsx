@@ -33,7 +33,7 @@ export default function UsuariosPage() {
     try {
       const fn = httpsCallable(fns(), 'crearUsuario');
       const res: any = await fn({ email: toEmail(usuario), displayName: nombre, role, assignedHotels: asignados });
-      setMsg(`Usuario creado. Contraseña por defecto: SalouPark2026! (UID ${res.data.uid})`);
+      setMsg(`Usuario creado. Contraseña por defecto: ${res.data.password} (UID ${res.data.uid})`);
       setUsuario(''); setNombre(''); setAsignados([]);
       cargar();
     } catch (e: any) {

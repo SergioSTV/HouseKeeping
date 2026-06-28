@@ -6,6 +6,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/providers/AuthProvider';
 import { registrarHuella, huellaDisponible, mensajeHuella } from '@/lib/passkey';
+import { PasswordField } from '@/components/PasswordField';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default function CambiarPasswordPage() {
@@ -65,15 +66,9 @@ export default function CambiarPasswordPage() {
           ? <p className="mb-4 text-sm text-amber-700">Por seguridad, cambia la contraseña por defecto antes de continuar.</p>
           : <p className="mb-4 text-sm text-gray-500">Introduce tu contraseña actual y la nueva.</p>}
         <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <input type="password" autoComplete="current-password" value={actual} onChange={(e) => setActual(e.target.value)}
-            placeholder="Contraseña actual"
-            className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-hotel-primary" />
-          <input type="password" autoComplete="new-password" value={nueva} onChange={(e) => setNueva(e.target.value)}
-            placeholder="Nueva contraseña"
-            className="mb-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-hotel-primary" />
-          <input type="password" autoComplete="new-password" value={repetir} onChange={(e) => setRepetir(e.target.value)}
-            placeholder="Repite la nueva contraseña" onKeyDown={(e) => e.key === 'Enter' && onSubmit()}
-            className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-hotel-primary" />
+          <PasswordField value={actual} onChange={setActual} autoComplete="current-password" placeholder="Contraseña actual" className="mb-2" />
+          <PasswordField value={nueva} onChange={setNueva} autoComplete="new-password" placeholder="Nueva contraseña" className="mb-2" />
+          <PasswordField value={repetir} onChange={setRepetir} autoComplete="new-password" placeholder="Repite la nueva contraseña" onKeyDown={(e) => e.key === 'Enter' && onSubmit()} className="mb-3" />
           {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
           {ok && <p className="mb-2 text-sm text-green-700">Contraseña cambiada. Entrando…</p>}
           <button onClick={onSubmit} disabled={loading || ok}

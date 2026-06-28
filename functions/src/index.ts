@@ -7,7 +7,7 @@ import { setGlobalOptions } from 'firebase-functions/v2';
 admin.initializeApp();
 setGlobalOptions({ region: 'europe-west1' });
 
-const DEFAULT_PASSWORD = 'SalouPark2026!';
+const DEFAULT_PASSWORD = 'saloupark';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // Traduce errores de Firebase a mensajes claros para la pantalla.
@@ -40,7 +40,7 @@ export const crearUsuario = onCall(async (req) => {
       mustChangePassword: true, active: true,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-    return { uid: u.uid };
+    return { uid: u.uid, password: DEFAULT_PASSWORD };
   } catch (e) {
     throw traducir(e);
   }

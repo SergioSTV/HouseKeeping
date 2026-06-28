@@ -60,7 +60,7 @@ async function seedHotel(h) {
 
 async function seedAdmin() {
   const email = 'admin@saloupark.local';
-  const password = 'SalouPark2026!';
+  const password = 'saloupark';
   let user;
   try {
     user = await auth.getUserByEmail(email);
