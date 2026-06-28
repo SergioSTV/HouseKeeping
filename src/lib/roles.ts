@@ -22,7 +22,7 @@ export const STATUS_PERMISSIONS: Record<Role, RoomStatus[]> = {
   governanta:    ['sucia', 'limpia', 'lista_revision', 'no_molestar', 'cliente_no_sale', 'averia_grave', 'sucia_guardia'],
   subgovernanta: ['sucia', 'limpia', 'lista_revision', 'no_molestar', 'cliente_no_sale', 'averia_grave', 'sucia_guardia'],
   recepcion:     [],
-  camarera:      ['lista_revision', 'no_molestar'],
+  camarera:      ['lista_revision', 'no_molestar', 'cliente_no_sale'],
   camarera_guardia: ['limpia', 'sucia'],
 };
 

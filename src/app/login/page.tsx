@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { toEmail } from '@/lib/config';
 import { entrarConHuella, huellaDisponible, mensajeHuella } from '@/lib/passkey';
+import { TextSizeButton } from '@/components/TextSizeButton';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default function LoginPage() {
@@ -17,21 +18,40 @@ export default function LoginPage() {
 
   async function sellarSesion() {
     const idToken = await auth.currentUser!.getIdToken();
-    await fetch('/api/session', {
+    const res = await fetch('/api/session', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken }),
     });
+    if (!res.ok) throw new Error('session');
     router.replace('/rack');
+  }
+
+  function mensajeError(code: string): string {
+    if (code === 'auth/too-many-requests') return 'Demasiados intentos fallidos. Espera unos minutos y prueba de nuevo.';
+    if (code === 'auth/user-not-found') return 'Ese usuario no existe.';
+    if (code === 'auth/network-request-failed') return 'Sin conexión. Revisa tu red.';
+    return 'Usuario o contraseña incorrectos.';
   }
 
   async function onSubmit() {
     setError(''); setLoading(true);
+    // Paso 1: iniciar sesion (aqui se distingue la causa real)
     try {
       await signInWithEmailAndPassword(auth, toEmail(usuario), password);
+    } catch (e: any) {
+      setLoading(false);
+      setError(mensajeError(e?.code || ''));
+      return;
+    }
+    // Paso 2: sellar la sesion (si falla, NO es culpa de la contraseña)
+    try {
       await sellarSesion();
     } catch {
-      setError('Usuario o contraseña incorrectos.');
-    } finally { setLoading(false); }
+      setLoading(false);
+      setError('Has entrado, pero falló el inicio de sesión del servidor. Refresca la página o revisa las variables FIREBASE_ADMIN.');
+      return;
+    }
+    setLoading(false);
   }
 
   async function onHuella() {
@@ -50,6 +70,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="bg-hotel-primary px-6 py-5 text-white">
+          <div className="mb-1 flex justify-end">
+            <TextSizeButton className="rounded-full bg-white/15 px-2.5 py-1 text-sm font-semibold text-white transition hover:bg-white/25" />
+          </div>
           <div className="flex items-center gap-2 text-lg font-semibold">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4" />

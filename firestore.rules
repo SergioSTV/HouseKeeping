@@ -36,7 +36,7 @@ service cloud.firestore {
         allow update: if
           ((role() in ['admin','governanta','subgovernanta']) && inHotel())
           || (role() == 'camarera' && inHotel()
-              && request.resource.data.status in ['lista_revision', 'no_molestar']
+              && request.resource.data.status in ['lista_revision', 'no_molestar', 'cliente_no_sale']
               && request.resource.data.diff(resource.data).affectedKeys()
                    .hasOnly(['status','updatedBy','updatedAt']))
           || (role() == 'recepcion' && inHotel()
