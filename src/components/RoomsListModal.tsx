@@ -1,6 +1,7 @@
 'use client';
 import { STATUS_HEX, STATUS_LABELS, CHECKOUT_LABELS } from '@/lib/roles';
 import type { Room } from '@/lib/types';
+import { effectiveCheckout } from '@/lib/checkout';
 
 export function RoomsListModal({ title, rooms, onClose }: { title: string; rooms: Room[]; onClose: () => void }) {
   return (
@@ -26,7 +27,7 @@ export function RoomsListModal({ title, rooms, onClose }: { title: string; rooms
                     <span className="rounded px-2 py-0.5" style={{ backgroundColor: c.bg, color: c.fg }}>{STATUS_LABELS[r.status]}</span>
                     {r.vip && <span className="rounded bg-[#1f2430] px-1.5 py-0.5 font-medium text-white">VIP</span>}
                     {r.rush && <span className="rounded bg-[#FBE2C0] px-1.5 py-0.5 font-medium text-[#7A4A06]">Lobby</span>}
-                    {r.checkout !== 'ninguno' && <span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-700">{CHECKOUT_LABELS[r.checkout]}</span>}
+                    {effectiveCheckout(r) !== 'ninguno' && <span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-700">{CHECKOUT_LABELS[effectiveCheckout(r)]}</span>}
                   </div>
                 </li>
               );

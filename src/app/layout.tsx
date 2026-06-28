@@ -17,6 +17,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "try{var s=localStorage.getItem('textScale');var m={normal:'100%',grande:'112.5%',xl:'125%'};document.documentElement.style.fontSize=m[s]||'100%';}catch(e){}",
+          }}
+        />
+      </head>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

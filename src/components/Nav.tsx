@@ -5,6 +5,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { NAV_ITEMS, canAccess } from '@/lib/roles';
 import { HotelSwitcher } from './HotelSwitcher';
 import { NotificationBell } from './NotificationBell';
+import { TextSizeControl } from './TextSizeControl';
 import { useNotifications, type NotifSection } from '@/providers/NotificationsProvider';
 
 const SECTION_FOR_PATH: Record<string, NotifSection> = {
@@ -33,6 +34,7 @@ export function Nav() {
             <span className="sm:hidden">4RHK</span>
           </span>
           <div className="flex items-center gap-2">
+            <TextSizeControl />
             {isStaff && <NotificationBell />}
             <HotelSwitcher />
             <button onClick={logout} className="rounded-full bg-white/15 px-3 py-1.5 text-sm transition hover:bg-white/25">

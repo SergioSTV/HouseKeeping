@@ -5,6 +5,7 @@ import { changeStatus, setCheckout } from '@/lib/actions';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHotel } from '@/providers/HotelProvider';
 import type { Room } from '@/lib/types';
+import { effectiveCheckout } from '@/lib/checkout';
 import { RoomDetailModal } from './RoomDetailModal';
 
 export function RoomCard({ room }: { room: Room }) {
@@ -12,6 +13,7 @@ export function RoomCard({ room }: { room: Room }) {
   const { role, user, displayName } = useAuth();
   const { hotelId } = useHotel();
   const c = STATUS_HEX[room.status];
+  const co = effectiveCheckout(room);
   const actor = user ? { uid: user.uid, name: displayName } : null;
 
   // Acciones rapidas segun rol: un toque, sin abrir la ficha.
@@ -45,7 +47,7 @@ export function RoomCard({ room }: { room: Room }) {
               <span className="text-[11px]" style={{ color: c.fg, opacity: 0.7 }}>Planta {room.floor}</span>
             </div>
             <div className="mt-1.5 text-xs font-medium" style={{ color: c.fg }}>{STATUS_LABELS[room.status]}</div>
-            {(room.vip || room.rush || room.checkout !== 'ninguno') && (
+            {(room.vip || room.rush || co !== 'ninguno') && (
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {room.rush && (
                   <span className="inline-flex items-center gap-1 rounded-md bg-[#FBE2C0] px-1.5 py-0.5 text-[11px] font-medium text-[#7A4A06]">
@@ -59,9 +61,9 @@ export function RoomCard({ room }: { room: Room }) {
                     VIP
                   </span>
                 )}
-                {room.checkout !== 'ninguno' && (
+                {co !== 'ninguno' && (
                   <span className="inline-flex items-center gap-1 rounded-md bg-white/70 px-1.5 py-0.5 text-[11px]" style={{ color: c.fg }}>
-                    {CHECKOUT_LABELS[room.checkout]}
+                    {CHECKOUT_LABELS[co]}
                   </span>
                 )}
               </div>

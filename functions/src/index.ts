@@ -166,6 +166,20 @@ export const purgarAverias = onSchedule(
         }
         if (k > 0) await b.commit();
       }
+
+      // Late check out caducado: si la fecha ya paso, se quita de la habitacion.
+      const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' }); // YYYY-MM-DD
+      const roomsSnap = await db.collection(`hotels/${hotel.id}/rooms`).get();
+      let rb = db.batch();
+      let rn = 0;
+      for (const doc of roomsSnap.docs) {
+        const d = doc.data();
+        if ((d.checkout === 'late_14' || d.checkout === 'late_18') && d.lateCheckoutDate && d.lateCheckoutDate < hoy) {
+          rb.update(doc.ref, { checkout: 'ninguno', lateCheckoutDate: null });
+          if (++rn >= 200) { await rb.commit(); rb = db.batch(); rn = 0; }
+        }
+      }
+      if (rn > 0) await rb.commit();
     }
   },
 );

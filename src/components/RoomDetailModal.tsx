@@ -9,6 +9,7 @@ import {
 } from '@/lib/roles';
 import { changeStatus, setCheckout, setVip, setRush, reportAveria, addComentario } from '@/lib/actions';
 import type { Room, RoomStatus, CheckoutStatus } from '@/lib/types';
+import { effectiveCheckout } from '@/lib/checkout';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CHECKOUTS: CheckoutStatus[] = ['ya_checkout', 'checkout_anticipado', 'late_14', 'late_18'];
@@ -88,9 +89,9 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
             <div className="text-sm" style={{ color: c.fg, opacity: 0.8 }}>Planta {live.floor} · {STATUS_LABELS[live.status]}</div>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {live.vip && <span className="rounded-md bg-[#1f2430] px-2 py-0.5 text-xs font-medium text-white">VIP</span>}
-              {live.checkout !== 'ninguno' && (
+              {effectiveCheckout(live) !== 'ninguno' && (
                 <span className="rounded-md bg-white/70 px-2 py-0.5 text-xs" style={{ color: c.fg }}>
-                  {CHECKOUT_LABELS[live.checkout]}{live.lateCheckoutDate ? ` · ${live.lateCheckoutDate}` : ''}
+                  {CHECKOUT_LABELS[effectiveCheckout(live)]}{live.lateCheckoutDate ? ` · ${live.lateCheckoutDate}` : ''}
                 </span>
               )}
             </div>

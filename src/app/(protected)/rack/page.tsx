@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useHotel } from '@/providers/HotelProvider';
 import { useAuth } from '@/providers/AuthProvider';
 import { markRoomsClean } from '@/lib/actions';
+import { effectiveCheckout } from '@/lib/checkout';
 import { useRooms } from '@/hooks/useRooms';
 import { RoomCard } from '@/components/RoomCard';
 import { STATUS_LABELS } from '@/lib/roles';
@@ -35,10 +36,10 @@ export default function RackPage() {
   const visibles = rooms.filter((r) => {
     if (planta !== 'todas' && r.floor !== planta) return false;
     switch (filtro) {
-      case 'salidas': return r.checkout === 'ya_checkout' || r.checkout === 'checkout_anticipado';
+      case 'salidas': return effectiveCheckout(r) === 'ya_checkout' || effectiveCheckout(r) === 'checkout_anticipado';
       case 'averias': return r.status === 'averia_grave';
       case 'no_salen': return r.status === 'cliente_no_sale';
-      case 'late': return r.checkout === 'late_14' || r.checkout === 'late_18';
+      case 'late': return effectiveCheckout(r) === 'late_14' || effectiveCheckout(r) === 'late_18';
       case 'limpias': return r.status === 'limpia';
       case 'sucias': return r.status === 'sucia' || r.status === 'sucia_guardia';
       case 'bloqueadas': return r.blocked || r.status === 'averia_grave';
