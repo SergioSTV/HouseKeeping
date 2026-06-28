@@ -5,6 +5,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { NAV_ITEMS, canAccess } from '@/lib/roles';
 import { HotelSwitcher } from './HotelSwitcher';
 import { NotificationBell } from './NotificationBell';
+import { TextSizeButton } from './TextSizeButton';
 import { TextSizeControl } from './TextSizeControl';
 import { useNotifications, type NotifSection } from '@/providers/NotificationsProvider';
 

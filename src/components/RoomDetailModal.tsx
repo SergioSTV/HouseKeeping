@@ -9,6 +9,7 @@ import {
 } from '@/lib/roles';
 import { changeStatus, setCheckout, setVip, setRush, reportAveria, addComentario } from '@/lib/actions';
 import type { Room, RoomStatus, CheckoutStatus } from '@/lib/types';
+import { normalizeRoom } from '@/lib/roomUtils';
 import { effectiveCheckout } from '@/lib/checkout';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -22,7 +23,7 @@ function ts(v: any): string {
 export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => void }) {
   const { role, user, displayName } = useAuth();
   const { hotelId } = useHotel();
-  const [live, setLive] = useState<Room>(room);
+  const [live, setLive] = useState<Room>(() => normalizeRoom(room));
   const [history, setHistory] = useState<any[]>([]);
   const [averias, setAverias] = useState<any[]>([]);
   const [comentarios, setComentarios] = useState<any[]>([]);
@@ -38,7 +39,7 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
     const unsubs: (() => void)[] = [];
     // La habitacion en vivo (para reflejar cambios sin cerrar la ficha)
     unsubs.push(onSnapshot(doc(db, 'hotels', hotelId, 'rooms', room.id), (d) => {
-      if (d.exists()) setLive({ id: d.id, ...d.data() } as Room);
+      if (d.exists()) setLive(normalizeRoom({ id: d.id, ...d.data() } as Room));
     }));
     // Historial: visible para todos los que ven el rack
     unsubs.push(onSnapshot(

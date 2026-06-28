@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Room } from '@/lib/types';
+import { normalizeRoom } from '@/lib/roomUtils';
 
 // Suscripcion en tiempo real a las habitaciones del hotel activo.
 export function useRooms(hotelId: string | null) {
@@ -18,7 +19,7 @@ export function useRooms(hotelId: string | null) {
     setLoading(true);
     const q = query(collection(db, 'hotels', hotelId, 'rooms'), orderBy('number'));
     const unsub = onSnapshot(q, (snap) => {
-      setRooms(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Room)));
+      setRooms(snap.docs.map((d) => normalizeRoom({ id: d.id, ...d.data() } as Room)));
       setLoading(false);
     }, (e) => { console.warn('rooms listener', e); setLoading(false); });
     return () => unsub();
