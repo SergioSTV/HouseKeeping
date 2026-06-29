@@ -80,7 +80,6 @@ export const STATUS_HEX: Record<RoomStatus, { bg: string; fg: string; stripe: st
 export const NAV_ITEMS: { path: string; label: string }[] = [
   { path: '/dashboard', label: 'Dashboard' },
   { path: '/rack', label: 'Rack' },
-  { path: '/esperando', label: 'Esperando' },
   { path: '/averias', label: 'Averias' },
   { path: '/comentarios', label: 'Comentarios' },
   { path: '/usuarios', label: 'Usuarios' },

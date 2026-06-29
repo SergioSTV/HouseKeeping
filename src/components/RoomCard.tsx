@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { STATUS_HEX, STATUS_LABELS, CHECKOUT_LABELS } from '@/lib/roles';
-import { changeStatus, setCheckout } from '@/lib/actions';
+import { changeStatus, checkoutSucia } from '@/lib/actions';
 import { useAuth } from '@/providers/AuthProvider';
 import { useHotel } from '@/providers/HotelProvider';
 import type { Room } from '@/lib/types';
@@ -25,7 +25,7 @@ export function RoomCard({ room }: { room: Room }) {
       quick.push({ label: 'Limpia', run: () => changeStatus(hotelId, room, 'limpia', actor) });
       quick.push({ label: 'Sucia', run: () => changeStatus(hotelId, room, 'sucia', actor) });
     } else if (role === 'recepcion') {
-      quick.push({ label: 'Check out', run: () => setCheckout(hotelId, room, 'ya_checkout', actor) });
+      quick.push({ label: 'Check out', run: () => checkoutSucia(hotelId, room, actor) });
     }
   }
 
@@ -61,11 +61,16 @@ export function RoomCard({ room }: { room: Room }) {
                     VIP
                   </span>
                 )}
-                {co !== 'ninguno' && (
+                {co === 'ya_checkout' ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-[#B42318] px-2.5 py-1 text-xs font-bold text-white shadow-sm ring-1 ring-black/10">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Ya hizo check out
+                  </span>
+                ) : co !== 'ninguno' ? (
                   <span className="inline-flex items-center gap-1 rounded-md bg-white/70 px-1.5 py-0.5 text-[11px]" style={{ color: c.fg }}>
                     {CHECKOUT_LABELS[co]}
                   </span>
-                )}
+                ) : null}
               </div>
             )}
             {quick.length > 0 && (

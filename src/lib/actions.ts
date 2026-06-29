@@ -35,7 +35,14 @@ export async function changeStatus(
   actor: ActorRef,
 ) {
   const ref = doc(db, 'hotels', hotelId, 'rooms', room.id);
-  await updateDoc(ref, { status, updatedBy: actor, updatedAt: serverTimestamp() });
+  // Al cambiar el estado de una habitación que ya hizo check out, se limpia ese aviso.
+  const limpiarCheckout = room.checkout === 'ya_checkout' || room.checkout === 'checkout_anticipado';
+  await updateDoc(ref, {
+    status,
+    updatedBy: actor,
+    updatedAt: serverTimestamp(),
+    ...(limpiarCheckout ? { checkout: 'ninguno', checkoutAt: null } : {}),
+  });
   await logHistory(hotelId, room, 'estado', room.status, status, actor);
 }
 

@@ -38,7 +38,11 @@ service cloud.firestore {
           || (role() == 'camarera' && inHotel()
               && request.resource.data.status in ['lista_revision', 'no_molestar', 'cliente_no_sale']
               && request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(['status','updatedBy','updatedAt']))
+                   .hasOnly(['status','checkout','checkoutAt','updatedBy','updatedAt'])
+              && (
+                   !request.resource.data.diff(resource.data).affectedKeys().hasAny(['checkout'])
+                   || request.resource.data.checkout == 'ninguno'
+                 ))
           // Recepcion: gestiona checkout y, si toca el estado, solo limpia/sucia
           // (cubre el boton de check out que deja sucia, y limpia/sucia manual o por planta).
           || (role() == 'recepcion' && inHotel()
@@ -52,7 +56,11 @@ service cloud.firestore {
           || (role() == 'camarera_guardia' && inHotel()
               && request.resource.data.status in ['limpia','sucia']
               && request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(['status','updatedBy','updatedAt']));
+                   .hasOnly(['status','checkout','checkoutAt','updatedBy','updatedAt'])
+              && (
+                   !request.resource.data.diff(resource.data).affectedKeys().hasAny(['checkout'])
+                   || request.resource.data.checkout == 'ninguno'
+                 ));
 
         // Historial (icono de 3 puntitos): lo leen y crean los que ven el rack.
         match /history/{h} {
