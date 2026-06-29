@@ -184,6 +184,11 @@ export async function addComentarioDirecto(
   });
 }
 
+// Eliminar un comentario especial.
+export async function eliminarComentario(hotelId: string, id: string) {
+  await deleteDoc(doc(db, 'hotels', hotelId, 'comentarios', id));
+}
+
 // ---- Pedidos de habitacion (toallas, sabanas, etc.) ----
 export async function addPedido(hotelId: string, habitacion: string, descripcion: string, actor: ActorRef) {
   await addDoc(collection(db, 'hotels', hotelId, 'pedidos'), {
