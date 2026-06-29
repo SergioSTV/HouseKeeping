@@ -39,14 +39,15 @@ service cloud.firestore {
               && request.resource.data.status in ['lista_revision', 'no_molestar', 'cliente_no_sale']
               && request.resource.data.diff(resource.data).affectedKeys()
                    .hasOnly(['status','updatedBy','updatedAt']))
+          // Recepcion: gestiona checkout y, si toca el estado, solo limpia/sucia
+          // (cubre el boton de check out que deja sucia, y limpia/sucia manual o por planta).
           || (role() == 'recepcion' && inHotel()
               && request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(['checkout','lateCheckoutDate','vip','rush','updatedBy','updatedAt']))
-          // Recepcion tambien puede marcar limpia (boton de marcar limpias por planta/hotel).
-          || (role() == 'recepcion' && inHotel()
-              && request.resource.data.status == 'limpia'
-              && request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(['status','updatedBy','updatedAt']))
+                   .hasOnly(['checkout','lateCheckoutDate','checkoutAt','vip','rush','status','updatedBy','updatedAt'])
+              && (
+                   !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
+                   || request.resource.data.status in ['limpia','sucia']
+                 ))
           // Camarera de guardia: solo alterna limpia/sucia.
           || (role() == 'camarera_guardia' && inHotel()
               && request.resource.data.status in ['limpia','sucia']

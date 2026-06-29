@@ -47,25 +47,36 @@ export function playBeep() {
   if (!c) return;
   if (c.state === 'suspended') c.resume().catch(() => {});
   try {
-    // Cadena: notas -> ganancia maestra -> limitador (sube el volumen sin
-    // distorsionar recortando solo los picos) -> salida.
+    // Cadena: notas -> maestra (empuja fuerte) -> limitador (aplana los picos)
+    // -> ganancia de recuperación (sube TODO el nivel sin distorsionar) -> salida.
     const master = c.createGain();
-    master.gain.value = 1.0;
+    master.gain.value = 1.8; // empuja la señal contra el limitador
+
     const lim = c.createDynamicsCompressor();
-    lim.threshold.value = -2;
+    lim.threshold.value = -8;
     lim.knee.value = 0;
     lim.ratio.value = 20;
     lim.attack.value = 0.002;
-    lim.release.value = 0.12;
-    master.connect(lim);
-    lim.connect(c.destination);
+    lim.release.value = 0.1;
 
-    // "Ding-dong" claro y fuerte, repetido una vez para llamar la atención.
-    const V = 0.85;
-    nota(c, master, 1175, 0.00, 0.22, V); // ding
-    nota(c, master,  880, 0.17, 0.42, V); // dong
-    nota(c, master, 1175, 0.64, 0.22, V); // ding (repetición)
-    nota(c, master,  880, 0.81, 0.42, V); // dong
+    const makeup = c.createGain();
+    makeup.gain.value = 2.4; // recupera volumen tras limitar -> suena más fuerte
+
+    master.connect(lim);
+    lim.connect(makeup);
+    makeup.connect(c.destination);
+
+    // Tonos en la zona donde el oído y los altavoces de móvil rinden más (~2-3 kHz).
+    // Patrón "bip-bip" repetido 3 veces para que se note de verdad.
+    const V = 0.95;
+    const A = 2640;
+    const B = 1980;
+    let t = 0;
+    for (let i = 0; i < 3; i++) {
+      nota(c, master, A, t, 0.15, V);
+      nota(c, master, B, t + 0.13, 0.20, V);
+      t += 0.40;
+    }
   } catch { /* nada */ }
 }
 

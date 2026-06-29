@@ -4,6 +4,7 @@ import type { Role, RoomStatus, CheckoutStatus } from './types';
 export const ROUTE_ACCESS: Record<string, Role[]> = {
   '/dashboard':   ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera_guardia'],
   '/rack':        ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera', 'camarera_guardia'],
+  '/esperando':   ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera', 'camarera_guardia'],
   '/cambiar-password': ['admin', 'governanta', 'subgovernanta', 'recepcion', 'camarera', 'camarera_guardia'],
   '/averias':     ['admin', 'governanta', 'subgovernanta', 'recepcion'],
   '/comentarios': ['admin', 'governanta', 'subgovernanta', 'recepcion'],
@@ -21,7 +22,7 @@ export const STATUS_PERMISSIONS: Record<Role, RoomStatus[]> = {
   admin:         ['sucia', 'limpia', 'lista_revision', 'no_molestar', 'cliente_no_sale', 'averia_grave', 'sucia_guardia'],
   governanta:    ['sucia', 'limpia', 'lista_revision', 'no_molestar', 'cliente_no_sale', 'averia_grave', 'sucia_guardia'],
   subgovernanta: ['sucia', 'limpia', 'lista_revision', 'no_molestar', 'cliente_no_sale', 'averia_grave', 'sucia_guardia'],
-  recepcion:     [],
+  recepcion:     ['limpia', 'sucia'],
   camarera:      ['lista_revision', 'no_molestar', 'cliente_no_sale'],
   camarera_guardia: ['limpia', 'sucia'],
 };
@@ -79,6 +80,7 @@ export const STATUS_HEX: Record<RoomStatus, { bg: string; fg: string; stripe: st
 export const NAV_ITEMS: { path: string; label: string }[] = [
   { path: '/dashboard', label: 'Dashboard' },
   { path: '/rack', label: 'Rack' },
+  { path: '/esperando', label: 'Esperando' },
   { path: '/averias', label: 'Averias' },
   { path: '/comentarios', label: 'Comentarios' },
   { path: '/usuarios', label: 'Usuarios' },

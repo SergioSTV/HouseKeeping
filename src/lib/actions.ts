@@ -47,13 +47,31 @@ export async function setCheckout(
   lateCheckoutDate?: string,
 ) {
   const ref = doc(db, 'hotels', hotelId, 'rooms', room.id);
+  const salida = checkout === 'ya_checkout' || checkout === 'checkout_anticipado';
   await updateDoc(ref, {
     checkout,
     lateCheckoutDate: lateCheckoutDate ?? null,
+    checkoutAt: salida ? serverTimestamp() : null,
     updatedBy: actor,
     updatedAt: serverTimestamp(),
   });
   await logHistory(hotelId, room, 'checkout', room.checkout, checkout, actor);
+}
+
+// Recepción marca el check out: la habitación pasa a SUCIA automáticamente
+// (para que Pisos la vea) y se registra el check out. Luego camareras/governanta
+// cambian el estado según sus competencias.
+export async function checkoutSucia(hotelId: string, room: Room, actor: ActorRef) {
+  const ref = doc(db, 'hotels', hotelId, 'rooms', room.id);
+  await updateDoc(ref, {
+    checkout: 'ya_checkout',
+    checkoutAt: serverTimestamp(),
+    status: 'sucia',
+    updatedBy: actor,
+    updatedAt: serverTimestamp(),
+  });
+  await logHistory(hotelId, room, 'checkout', room.checkout, 'ya_checkout', actor);
+  await logHistory(hotelId, room, 'estado', room.status, 'sucia', actor);
 }
 
 export async function setVip(hotelId: string, room: Room, vip: boolean, actor: ActorRef) {
@@ -127,7 +145,7 @@ export async function removeLlegada(hotelId: string, id: string) {
 // Rush: cliente esperando en el lobby por esa habitacion.
 export async function setRush(hotelId: string, room: Room, rush: boolean, actor: ActorRef) {
   await updateDoc(doc(db, 'hotels', hotelId, 'rooms', room.id), {
-    rush, updatedBy: actor, updatedAt: serverTimestamp(),
+    rush, rushAt: rush ? serverTimestamp() : null, updatedBy: actor, updatedAt: serverTimestamp(),
   });
 }
 
