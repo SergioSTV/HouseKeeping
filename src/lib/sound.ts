@@ -16,29 +16,56 @@ export function unlockAudio() {
   if (c && c.state === 'suspended') c.resume().catch(() => {});
 }
 
+// Una nota con cuerpo: triangle (fundamental) + square al mismo tono (armónicos).
+// Eso hace que "corte" mucho mejor en los altavoces pequeños de móvil.
+function nota(c: AudioContext, dest: AudioNode, f: number, t: number, d: number, vol: number) {
+  const t0 = c.currentTime + t;
+  const g = c.createGain();
+  g.connect(dest);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+
+  const o1 = c.createOscillator();
+  o1.type = 'triangle';
+  o1.frequency.value = f;
+  o1.connect(g);
+  o1.start(t0); o1.stop(t0 + d + 0.05);
+
+  const g2 = c.createGain();
+  g2.gain.value = 0.4;
+  g2.connect(g);
+  const o2 = c.createOscillator();
+  o2.type = 'square';
+  o2.frequency.value = f;
+  o2.connect(g2);
+  o2.start(t0); o2.stop(t0 + d + 0.05);
+}
+
 export function playBeep() {
   const c = getCtx();
   if (!c) return;
   if (c.state === 'suspended') c.resume().catch(() => {});
   try {
-    // Dos notas suaves tipo "ding-dong" (un aviso amable, no un pitido).
-    const notas = [
-      { f: 988, t: 0,    d: 0.18 }, // Si5
-      { f: 740, t: 0.14, d: 0.32 }, // Fa#5
-    ];
-    for (const n of notas) {
-      const o = c.createOscillator();
-      const g = c.createGain();
-      o.connect(g); g.connect(c.destination);
-      o.type = 'triangle';
-      o.frequency.value = n.f;
-      const t0 = c.currentTime + n.t;
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.22, t0 + 0.03);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + n.d);
-      o.start(t0);
-      o.stop(t0 + n.d + 0.02);
-    }
+    // Cadena: notas -> ganancia maestra -> limitador (sube el volumen sin
+    // distorsionar recortando solo los picos) -> salida.
+    const master = c.createGain();
+    master.gain.value = 1.0;
+    const lim = c.createDynamicsCompressor();
+    lim.threshold.value = -2;
+    lim.knee.value = 0;
+    lim.ratio.value = 20;
+    lim.attack.value = 0.002;
+    lim.release.value = 0.12;
+    master.connect(lim);
+    lim.connect(c.destination);
+
+    // "Ding-dong" claro y fuerte, repetido una vez para llamar la atención.
+    const V = 0.85;
+    nota(c, master, 1175, 0.00, 0.22, V); // ding
+    nota(c, master,  880, 0.17, 0.42, V); // dong
+    nota(c, master, 1175, 0.64, 0.22, V); // ding (repetición)
+    nota(c, master,  880, 0.81, 0.42, V); // dong
   } catch { /* nada */ }
 }
 
