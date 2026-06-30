@@ -51,13 +51,16 @@ export async function setCheckout(
   room: Room,
   checkout: CheckoutStatus,
   actor: ActorRef,
-  lateCheckoutDate?: string,
+  opts?: { lateCheckoutDate?: string | null; salidaReal?: string | null; salidaOriginal?: string | null },
 ) {
   const ref = doc(db, 'hotels', hotelId, 'rooms', room.id);
   const salida = checkout === 'ya_checkout' || checkout === 'checkout_anticipado';
+  const esAnticipado = checkout === 'checkout_anticipado';
   await updateDoc(ref, {
     checkout,
-    lateCheckoutDate: lateCheckoutDate ?? null,
+    lateCheckoutDate: opts?.lateCheckoutDate ?? null,
+    salidaReal: esAnticipado ? (opts?.salidaReal ?? null) : null,
+    salidaOriginal: esAnticipado ? (opts?.salidaOriginal ?? null) : null,
     checkoutAt: salida ? serverTimestamp() : null,
     updatedBy: actor,
     updatedAt: serverTimestamp(),

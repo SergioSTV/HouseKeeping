@@ -48,9 +48,13 @@ export interface Room {
   status: RoomStatus;
   checkout: CheckoutStatus;
   lateCheckoutDate?: string | null;
+  salidaReal?: string | null;
+  salidaOriginal?: string | null;
   vip: boolean;
   blocked: boolean;
   rush?: boolean;
+  rushAt?: unknown;
+  checkoutAt?: unknown;
   updatedBy?: ActorRef;
   updatedAt?: unknown;
 }

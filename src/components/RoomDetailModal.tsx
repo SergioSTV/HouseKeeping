@@ -10,7 +10,7 @@ import {
 import { changeStatus, setCheckout, setVip, setRush, reportAveria, addComentario } from '@/lib/actions';
 import type { Room, RoomStatus, CheckoutStatus } from '@/lib/types';
 import { normalizeRoom } from '@/lib/roomUtils';
-import { effectiveCheckout } from '@/lib/checkout';
+import { effectiveCheckout, todayKey } from '@/lib/checkout';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CHECKOUTS: CheckoutStatus[] = ['ya_checkout', 'checkout_anticipado', 'late_14', 'late_18'];
@@ -31,6 +31,10 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
   const [tipoComentario, setTipoComentario] = useState<'vip' | 'importante' | 'urgente'>('importante');
   const [showAveria, setShowAveria] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [pendCo, setPendCo] = useState<null | 'late_14' | 'late_18' | 'checkout_anticipado'>(null);
+  const [fLate, setFLate] = useState('');
+  const [fSalida, setFSalida] = useState('');
+  const [fOriginal, setFOriginal] = useState('');
 
   const isStaff = role ? ['admin', 'governanta', 'subgovernanta', 'recepcion'].includes(role) : false;
 
@@ -66,12 +70,32 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
   const statesForRole = STATUS_PERMISSIONS[role];
 
   async function onCheckout(co: CheckoutStatus) {
-    let fecha: string | undefined;
     if (co === 'late_14' || co === 'late_18') {
-      fecha = window.prompt('Fecha del late check out (YYYY-MM-DD):') ?? undefined;
-      if (!fecha) return;
+      setFLate(live.lateCheckoutDate ?? todayKey());
+      setPendCo(co);
+      return;
     }
-    await setCheckout(hotelId!, live, co, actor, fecha);
+    if (co === 'checkout_anticipado') {
+      setFSalida(todayKey());
+      setFOriginal('');
+      setPendCo('checkout_anticipado');
+      return;
+    }
+    await setCheckout(hotelId!, live, co, actor);
+  }
+
+  async function confirmarPend() {
+    if (!pendCo) return;
+    if (pendCo === 'checkout_anticipado') {
+      await setCheckout(hotelId!, live, 'checkout_anticipado', actor, {
+        salidaReal: fSalida || todayKey(),
+        salidaOriginal: fOriginal || null,
+      });
+    } else {
+      if (!fLate) return;
+      await setCheckout(hotelId!, live, pendCo, actor, { lateCheckoutDate: fLate });
+    }
+    setPendCo(null);
   }
 
   const averiasSorted = [...averias].sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
@@ -92,7 +116,10 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
               {live.vip && <span className="rounded-md bg-[#1f2430] px-2 py-0.5 text-xs font-medium text-white">VIP</span>}
               {effectiveCheckout(live) !== 'ninguno' && (
                 <span className="rounded-md bg-white/70 px-2 py-0.5 text-xs" style={{ color: c.fg }}>
-                  {CHECKOUT_LABELS[effectiveCheckout(live)]}{live.lateCheckoutDate ? ` · ${live.lateCheckoutDate}` : ''}
+                  {CHECKOUT_LABELS[effectiveCheckout(live)]}
+                  {live.lateCheckoutDate ? ` · ${live.lateCheckoutDate}` : ''}
+                  {live.checkout === 'checkout_anticipado' && live.salidaReal ? ` · salió ${live.salidaReal}` : ''}
+                  {live.checkout === 'checkout_anticipado' && live.salidaOriginal ? ` · original ${live.salidaOriginal}` : ''}
                 </span>
               )}
             </div>
@@ -155,6 +182,27 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
                   {live.rush ? 'Quitar lobby' : 'Cliente en lobby'}
                 </button>
               </div>
+              {pendCo && (
+                <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  {pendCo === 'checkout_anticipado' ? (
+                    <>
+                      <label className="mb-1 block text-xs font-medium text-gray-500">Fecha en la que salió</label>
+                      <input type="date" value={fSalida} onChange={(e) => setFSalida(e.target.value)} className="mb-2 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
+                      <label className="mb-1 block text-xs font-medium text-gray-500">Fecha de salida original</label>
+                      <input type="date" value={fOriginal} onChange={(e) => setFOriginal(e.target.value)} className="mb-3 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
+                    </>
+                  ) : (
+                    <>
+                      <label className="mb-1 block text-xs font-medium text-gray-500">Fecha del late check out</label>
+                      <input type="date" value={fLate} onChange={(e) => setFLate(e.target.value)} className="mb-3 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" />
+                    </>
+                  )}
+                  <div className="flex gap-2">
+                    <button onClick={confirmarPend} className="rounded-lg bg-hotel-primary px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90">Guardar</button>
+                    <button onClick={() => setPendCo(null)} className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm">Cancelar</button>
+                  </div>
+                </div>
+              )}
             </section>
           )}
 

@@ -47,7 +47,7 @@ service cloud.firestore {
           // (cubre el boton de check out que deja sucia, y limpia/sucia manual o por planta).
           || (role() == 'recepcion' && inHotel()
               && request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(['checkout','lateCheckoutDate','checkoutAt','vip','rush','status','updatedBy','updatedAt'])
+                   .hasOnly(['checkout','lateCheckoutDate','checkoutAt','salidaReal','salidaOriginal','vip','rush','rushAt','status','updatedBy','updatedAt'])
               && (
                    !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
                    || request.resource.data.status in ['limpia','sucia']
