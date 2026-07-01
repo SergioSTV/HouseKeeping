@@ -52,6 +52,7 @@ export interface Room {
   salidaOriginal?: string | null;
   vip: boolean;
   blocked: boolean;
+  deuda?: boolean;
   rush?: boolean;
   rushAt?: unknown;
   checkoutAt?: unknown;

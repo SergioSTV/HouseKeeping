@@ -7,7 +7,7 @@ import { useHotel } from '@/providers/HotelProvider';
 import {
   STATUS_PERMISSIONS, CHECKOUT_PERMISSIONS, STATUS_HEX, STATUS_LABELS, CHECKOUT_LABELS,
 } from '@/lib/roles';
-import { changeStatus, setCheckout, setVip, setRush, reportAveria, addComentario } from '@/lib/actions';
+import { changeStatus, setCheckout, setVip, setRush, setDeuda, reportAveria, addComentario } from '@/lib/actions';
 import type { Room, RoomStatus, CheckoutStatus } from '@/lib/types';
 import { normalizeRoom } from '@/lib/roomUtils';
 import { effectiveCheckout, todayKey } from '@/lib/checkout';
@@ -113,6 +113,7 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
             <div className="text-2xl font-semibold" style={{ color: c.fg }}>Habitación {live.number}</div>
             <div className="text-sm" style={{ color: c.fg, opacity: 0.8 }}>Planta {live.floor} · {STATUS_LABELS[live.status]}</div>
             <div className="mt-2 flex flex-wrap gap-1.5">
+              {live.deuda && <span className="rounded-md bg-[#C2410C] px-2 py-0.5 text-xs font-bold text-white">€ Deuda</span>}
               {live.vip && <span className="rounded-md bg-[#1f2430] px-2 py-0.5 text-xs font-medium text-white">VIP</span>}
               {effectiveCheckout(live) !== 'ninguno' && (
                 <span className="rounded-md bg-white/70 px-2 py-0.5 text-xs" style={{ color: c.fg }}>
@@ -180,6 +181,12 @@ export function RoomDetailModal({ room, onClose }: { room: Room; onClose: () => 
                   className="rounded-lg border border-gray-300 px-2.5 py-1 text-sm transition hover:border-hotel-primary hover:text-hotel-primary"
                 >
                   {live.rush ? 'Quitar lobby' : 'Cliente en lobby'}
+                </button>
+                <button
+                  onClick={() => setDeuda(hotelId, live, !live.deuda, actor)}
+                  className="rounded-lg border border-gray-300 px-2.5 py-1 text-sm transition hover:border-[#C2410C] hover:text-[#C2410C]"
+                >
+                  {live.deuda ? 'Quitar deuda' : 'Marcar deuda'}
                 </button>
               </div>
               {pendCo && (

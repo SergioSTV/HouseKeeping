@@ -152,6 +152,13 @@ export async function removeLlegada(hotelId: string, id: string) {
   await deleteDoc(doc(db, 'hotels', hotelId, 'llegadas_extras', id));
 }
 
+// Deuda: recepcion marca/quita que la habitacion tiene deuda pendiente.
+export async function setDeuda(hotelId: string, room: Room, deuda: boolean, actor: ActorRef) {
+  await updateDoc(doc(db, 'hotels', hotelId, 'rooms', room.id), {
+    deuda, updatedBy: actor, updatedAt: serverTimestamp(),
+  });
+}
+
 // Rush: cliente esperando en el lobby por esa habitacion.
 export async function setRush(hotelId: string, room: Room, rush: boolean, actor: ActorRef) {
   await updateDoc(doc(db, 'hotels', hotelId, 'rooms', room.id), {

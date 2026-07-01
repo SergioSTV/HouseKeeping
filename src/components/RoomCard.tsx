@@ -36,8 +36,8 @@ export function RoomCard({ room }: { room: Room }) {
         tabIndex={0}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === 'Enter') setOpen(true); }}
-        className="cursor-pointer rounded-xl border border-black/5 p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-black/10"
-        style={{ backgroundColor: c.bg }}
+        className="cursor-pointer rounded-xl border border-black/5 p-3 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-black/10"
+        style={{ backgroundColor: c.bg, backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.5), rgba(255,255,255,0) 55%)' }}
       >
         <div className="flex items-start gap-2.5">
           <span className="mt-0.5 h-7 w-1 shrink-0 rounded-full" style={{ backgroundColor: c.stripe }} />
@@ -47,8 +47,13 @@ export function RoomCard({ room }: { room: Room }) {
               <span className="text-[11px]" style={{ color: c.fg, opacity: 0.7 }}>Planta {room.floor}</span>
             </div>
             <div className="mt-1.5 text-xs font-medium" style={{ color: c.fg }}>{STATUS_LABELS[room.status]}</div>
-            {(room.vip || room.rush || co !== 'ninguno') && (
+            {(room.deuda || room.vip || room.rush || co !== 'ninguno') && (
               <div className="mt-1.5 flex flex-wrap gap-1">
+                {room.deuda && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-[#C2410C] px-2.5 py-1 text-xs font-bold text-white shadow-sm ring-1 ring-black/10">
+                    € Deuda
+                  </span>
+                )}
                 {room.rush && (
                   <span className="inline-flex items-center gap-1 rounded-md bg-[#FBE2C0] px-1.5 py-0.5 text-[11px] font-medium text-[#7A4A06]">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>

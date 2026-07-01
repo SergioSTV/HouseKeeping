@@ -54,6 +54,7 @@ export default function DashboardPage() {
   const vip = useMemo(() => rooms.filter((r) => r.vip), [rooms]);
   const lobby = useMemo(() => rooms.filter((r) => r.rush), [rooms]);
   const limpias = useMemo(() => rooms.filter((r) => r.status === 'limpia'), [rooms]);
+  const conDeuda = useMemo(() => rooms.filter((r) => r.deuda), [rooms]);
 
   const pctLimpias = rooms.length ? Math.round((limpias.length / rooms.length) * 100) : 0;
   const pedidosPend = pedidos.filter((p) => p.estado === 'pendiente').length;
@@ -81,6 +82,7 @@ export default function DashboardPage() {
 
         {isStaff && <>
           <Stat label="% Limpias" value={`${pctLimpias}%`} hint={`${limpias.length}/${rooms.length}`} onClick={() => setModal('limpias')} />
+          <Stat label="Con deuda" value={conDeuda.length} hint="check out con deuda" onClick={() => setModal('deuda')} />
           <Stat label="VIP" value={vip.length} onClick={() => setModal('vip')} />
           <Stat label="Esperando en lobby" value={lobby.length} hint="rush" onClick={() => setModal('lobby')} />
           <Stat label="Llegadas extras" value={llegadas.length} onClick={() => setModal('llegadas')} />
@@ -105,6 +107,7 @@ export default function DashboardPage() {
       {modal === 'late14' && <RoomsListModal title="Late check out 14 h" rooms={late14} onClose={() => setModal(null)} />}
       {modal === 'late18' && <RoomsListModal title="Late check out 18 h" rooms={late18} onClose={() => setModal(null)} />}
       {modal === 'limpias' && <RoomsListModal title="Habitaciones limpias" rooms={limpias} onClose={() => setModal(null)} />}
+      {modal === 'deuda' && <RoomsListModal title="Habitaciones con deuda" rooms={conDeuda} onClose={() => setModal(null)} />}
       {modal === 'vip' && <RoomsListModal title="Habitaciones VIP" rooms={vip} onClose={() => setModal(null)} />}
       {modal === 'lobby' && <RoomsListModal title="Esperando en lobby" rooms={lobby} onClose={() => setModal(null)} />}
       {modal === 'llegadas' && <LlegadasModal onClose={() => setModal(null)} />}

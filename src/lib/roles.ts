@@ -68,13 +68,13 @@ export const CHECKOUT_LABELS: Record<CheckoutStatus, string> = {
 // Colores de estado: contraste alto para escanear el rack de un vistazo.
 // bg/fg para la etiqueta; stripe para la franja lateral de la tarjeta.
 export const STATUS_HEX: Record<RoomStatus, { bg: string; fg: string; stripe: string }> = {
-  sucia:           { bg: '#FCEBEB', fg: '#791F1F', stripe: '#E24B4A' },
-  limpia:          { bg: '#EAF3DE', fg: '#27500A', stripe: '#639922' },
-  lista_revision:  { bg: '#FAEEDA', fg: '#633806', stripe: '#BA7517' },
-  no_molestar:     { bg: '#EEEDFE', fg: '#3C3489', stripe: '#7F77DD' },
-  cliente_no_sale: { bg: '#E6F1FB', fg: '#0C447C', stripe: '#378ADD' },
-  averia_grave:    { bg: '#F7C1C1', fg: '#501313', stripe: '#A32D2D' },
-  sucia_guardia:   { bg: '#F1EFE8', fg: '#2C2C2A', stripe: '#888780' },
+  sucia:           { bg: '#F9CDCD', fg: '#6E1414', stripe: '#D93B3B' },
+  limpia:          { bg: '#D6E8B6', fg: '#20450A', stripe: '#5A9018' },
+  lista_revision:  { bg: '#F6DBA6', fg: '#5A3205', stripe: '#B06D10' },
+  no_molestar:     { bg: '#D9D4FB', fg: '#332B80', stripe: '#7167DA' },
+  cliente_no_sale: { bg: '#C6DFF7', fg: '#093B6E', stripe: '#2E82D9' },
+  averia_grave:    { bg: '#F2A2A2', fg: '#450F0F', stripe: '#9E2626' },
+  sucia_guardia:   { bg: '#E2DCC7', fg: '#28281F', stripe: '#7E7D74' },
 };
 
 export const NAV_ITEMS: { path: string; label: string }[] = [
