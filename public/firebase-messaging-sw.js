@@ -1,6 +1,5 @@
 // Service worker para notificaciones push en segundo plano (FCM).
-// IMPORTANTE: estos valores deben coincidir con tus NEXT_PUBLIC_* del .env.local.
-// Ya puse los que sé; RELLENA messagingSenderId y appId con los tuyos y verifica el resto.
+// Valores del proyecto housekeeping-bda2d (los mismos NEXT_PUBLIC_* del .env.local).
 importScripts("https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging-compat.js");
 
