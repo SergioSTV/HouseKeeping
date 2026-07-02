@@ -19,14 +19,14 @@ import { RoomsListModal } from '@/components/RoomsListModal';
 
 function Stat({ label, value, hint, accent, icon, onClick }: { label: string; value: string | number; hint?: string; accent: string; icon: ReactNode; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="group relative overflow-hidden rounded-2xl bg-white p-4 text-left shadow-sm ring-1 ring-black/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <button onClick={onClick} className="group relative overflow-hidden rounded-2xl p-4 text-left shadow-sm ring-1 ring-black/5 transition duration-200 hover:-translate-y-0.5 hover:shadow-md" style={{ backgroundColor: `${accent}1F` }}>
       <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: accent }} aria-hidden="true" />
       <div className="flex items-center justify-between">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ backgroundColor: `${accent}1A`, color: accent }}>{icon}</span>
-        <span className="text-3xl font-bold tracking-tight text-gray-800">{value}</span>
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-black/5" style={{ color: accent }}>{icon}</span>
+        <span className="text-3xl font-bold tracking-tight text-gray-900">{value}</span>
       </div>
       <div className="mt-2.5 text-sm font-semibold text-gray-700">{label}</div>
-      {hint && <div className="mt-0.5 text-xs text-gray-400">{hint}</div>}
+      {hint && <div className="mt-0.5 text-xs text-gray-500">{hint}</div>}
     </button>
   );
 }

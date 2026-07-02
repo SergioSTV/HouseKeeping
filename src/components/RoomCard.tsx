@@ -45,11 +45,11 @@ export function RoomCard({ room }: { room: Room }) {
         {/* Deuda: moneda dorada en el vértice superior derecho (forma y color distintos del check out) */}
         {room.deuda && (
           <span
-            className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#F5B72E] to-[#C2410C] text-sm font-bold text-white shadow-md ring-2 ring-white"
+            className="absolute right-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-gradient-to-br from-[#F5B72E] to-[#C2410C] py-0.5 pl-1 pr-2 text-[10px] font-bold uppercase tracking-wide text-white shadow-md ring-2 ring-white"
             title="Habitación con deuda"
-            aria-label="Habitación con deuda"
           >
-            €
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 text-[10px] leading-none">€</span>
+            Deuda
           </span>
         )}
 

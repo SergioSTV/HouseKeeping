@@ -1,7 +1,12 @@
 'use client';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,5 +20,15 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Modo offline: guarda los datos en el dispositivo (IndexedDB). Si se pierde
+// internet, se sigue viendo el rack y los cambios se guardan localmente y se
+// sincronizan solos al volver la señal. Solo en el navegador (no en SSR).
+export const db =
+  typeof window !== 'undefined'
+    ? initializeFirestore(app, {
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+      })
+    : getFirestore(app);
+
 export { app };
