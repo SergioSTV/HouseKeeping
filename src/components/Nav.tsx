@@ -5,6 +5,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { NAV_ITEMS, canAccess } from '@/lib/roles';
 import { HotelSwitcher } from './HotelSwitcher';
 import { NotificationBell } from './NotificationBell';
+import { PushButton } from './PushButton';
 import { TextSizeButton } from './TextSizeButton';
 import { TextSizeControl } from './TextSizeControl';
 import { useNotifications, type NotifSection } from '@/providers/NotificationsProvider';
@@ -37,6 +38,7 @@ export function Nav() {
           <div className="flex items-center gap-2">
             <TextSizeControl />
             {isStaff && <NotificationBell />}
+            <PushButton />
             <HotelSwitcher />
             <button onClick={logout} className="rounded-full bg-white/15 px-3 py-1.5 text-sm transition hover:bg-white/25">
               Salir
